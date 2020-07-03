@@ -1,8 +1,9 @@
 import express from 'express';
-import TestRouter from './TestRouter';
+import {TestController} from '../controllers';
 
 const router = express.Router();
 
-router.use(TestRouter)
+router.route('/test')
+    .get(TestController.getSomeData)
 
 export default router;

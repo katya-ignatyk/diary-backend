@@ -1,15 +1,13 @@
 import express from 'express';
-import router from './routes/index';
-import dotenv from 'dotenv';
+import router from './routes/';
+import {port} from './config';
 
-const app:express.Application = express();
-dotenv.config();
-const port = process.env.PORT || 5000;
+const app = express();
 
-app.get('/', ( req:express.Request, res:express.Response) => res.send("helllllo"));
+app.get('/', ( req:express.Request, res:express.Response) => res.send("hello"));
 
 app.listen(port, () => {
     console.log( `server started at ${port}` );
 });
 
-app.use('/', router);
+app.use(router);
