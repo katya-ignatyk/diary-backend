@@ -1,14 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import AppError from './AppError';
  
-function errorHandler(error : AppError, request : Request, response : Response) {
+function errorHandler(error : AppError, request : Request, response : Response, next : NextFunction) {
     const status = error.status || 500;
     const message = error.message || 'Error!';
-    response
-        .send({
-            status,
-            message,
-        });
+    response.status(status).send({ status, message });
 }
  
 export default errorHandler;
