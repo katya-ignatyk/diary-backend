@@ -1,9 +1,9 @@
 import express from 'express';
-import { SignUpController } from '../controllers/';
+import {TestController} from '../controllers';
 
 const router = express.Router();
 
-router.route('/signUp')
-    .post(SignUpController.addUser)
+router.route('/test')
+    .get(TestController.getSomeData)
 
 export default router;

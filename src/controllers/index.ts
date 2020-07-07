@@ -1,1 +1,1 @@
-export * as SignUpController from './SignUpController';
+export * as TestController from './TestController';

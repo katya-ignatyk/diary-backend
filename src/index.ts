@@ -1,17 +1,13 @@
 import express from 'express';
 import router from './routes/';
-import { envConfig } from './config/';
-import bodyParser from "body-parser";
-import { createConnectionWithDB } from './utils/CreateConectionWithDB';
+import {port} from './config';
 
-const port = envConfig.port;
+const app = express();
 
-(async () => {
-    await createConnectionWithDB();
-    const app = express();
-    app.listen(port, () => {
-        console.log( `server started at ${port}` );
-    });
-    app.use(bodyParser.json());
-    app.use(router);    
-})();
+app.get('/', ( req : express.Request, res : express.Response) => res.send("hello"));
+
+app.listen(port, () => {
+    console.log( `server started at ${port}` );
+});
+
+app.use(router);
