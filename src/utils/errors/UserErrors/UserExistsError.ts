@@ -1,13 +1,8 @@
-export class UserExistsError extends Error {
+import AppError from '../AppError';
 
-    public statusCode = 409;
-    public status: string;
+export class UserExistsError extends AppError {
 
-    constructor() {
-
-      super('User with such username already exists');
-      this.status = `${this.statusCode}.startsWith('4') ? 'fail' : 'error'`;
-      Error.captureStackTrace(this, this.constructor);
-
+    constructor(username : string) {
+        super(409, `User ${username} already exists`);
     }
 }  

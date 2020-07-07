@@ -1,2 +1,2 @@
-export {UserExistsError} from './UserExistsError';
-export {UserVallidationError} from './UserVallidationError';
+export { UserExistsError } from './UserExistsError';
+export { UserVallidationError } from './UserVallidationError';

@@ -1,13 +1,8 @@
-export class UserVallidationError extends Error {
+import AppError from '../AppError';
 
-    public statusCode = 400;
-    public status: string;
+export class UserVallidationError extends AppError {
 
     constructor(message : string) {
-
-      super(message);
-      this.status = `${this.statusCode}.startsWith('4') ? 'fail' : 'error'`;
-      Error.captureStackTrace(this, this.constructor);
-      
-    }
-}  
+        super(400, message);
+    }  
+}

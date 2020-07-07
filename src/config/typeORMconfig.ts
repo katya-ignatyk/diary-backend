@@ -1,16 +1,16 @@
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { User } from '../models/';
-import { pg_username, pg_password, db_name, host } from './envConfig';
+import { User } from '../models';
+import { DB_HOST, DB_NAME, DB_PORT, PG_PASSWORD, PG_USERNAME, DB_IS_SYNCHRONIZE, DB_IS_LOGGING } from './envConfig';
 
-export const typeOrmConfig: PostgresConnectionOptions = {
-    type: "postgres",
-    host: host,
-    port: 5432,
-    username: pg_username,
-    password: pg_password,
-    database: db_name,
-    synchronize: true,
-    logging: false,
+export const typeOrmConfig : PostgresConnectionOptions = {
+    type: 'postgres',
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    username: PG_USERNAME,
+    password: PG_PASSWORD,
+    database: DB_NAME,
+    synchronize: Boolean(DB_IS_SYNCHRONIZE),
+    logging: DB_IS_LOGGING,
     entities: [
         User
     ]
