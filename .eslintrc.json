@@ -1,0 +1,44 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "eslint-plugin-import"
+    ],
+    "rules": {
+        "no-var": "error",
+        "semi": "error",
+        "indent": "error",
+        "no-multi-spaces": "error",
+        "space-in-parens": "error",
+        "no-multiple-empty-lines": ["error", {"max": 1}],
+        "prefer-const": "error",
+        "no-use-before-define": "error",
+        "@typescript-eslint/no-explicit-any": 2,
+        "object-curly-spacing" : [2, "always"],
+        "import/order": ["error", {
+            "pathGroups": [
+              {
+                "pattern": "@app/**",
+                "group": "external",
+                "position": "after"
+              }
+            ],
+            "pathGroupsExcludedImportTypes": ["builtin"]
+        }],
+        "quotes": ["error", "single"],
+        "@typescript-eslint/type-annotation-spacing" : ["error" , { "before": true, "after": true }],
+        "@typescript-eslint/explicit-module-boundary-types":"off"
+    }
+}
