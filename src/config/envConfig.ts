@@ -5,4 +5,4 @@ export const PG_USERNAME = process.env.PG_USERNAME;
 export const DB_HOST = process.env.DB_HOST;
 export const DB_PORT = process.env.DB_PORT;
 export const DB_IS_LOGGING = process.env.DB_IS_LOGGING;
-export const DB_IS_SYNCHRONIZE = process.env.DB_IS_SYNCHRONIZE;
+export const DB_IS_SYNCHRONIZE = process.env.DB_IS_SYNCHRONIZE || true;

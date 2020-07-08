@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi';
-import { UserVallidationError } from '../errors/UserErrors';
+import { UserVallidationError } from '../errors/userErrors';
 
 const inputErrors = Joi.object({
     password: Joi.string()

@@ -1,9 +1,9 @@
 import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
-import { UserExistsError } from '../utils/errors/UserErrors';
+import { UserExistenceError } from '../utils/errors/userErrors';
 
-export class UserService{
+export class UserService {
     private static instance : UserService;
     private readonly saltRounds = 10;
     private readonly userRepository = getRepository(User);
@@ -32,7 +32,7 @@ export class UserService{
         const user = await this.userRepository.find({ email });
 
         if(user.length) {
-            throw new UserExistsError(email);
+            throw new UserExistenceError(email);
         }
             
     }

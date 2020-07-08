@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import AppError from './AppError';
+import AppError from './appError';
  
 function errorHandler(error : AppError, request : Request, response : Response, next : NextFunction) {
     const status = error.status || 500;
