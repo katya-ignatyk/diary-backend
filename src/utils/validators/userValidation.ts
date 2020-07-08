@@ -7,7 +7,7 @@ const inputErrors = Joi.object({
         .min(8),
 
     email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'ru'] } })
         .required()
 }); 
 
