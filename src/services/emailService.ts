@@ -13,17 +13,17 @@ export class EmailService {
 
     private async send<T>(email : string, info : T) : Promise<T> {
         const baseInfo = {
-            from: 'katuxa.ignatuk@gmail.com',
+            from: 'news@gmail.com',
             to: email
         };
         return await this.Transport.sendMail({ ...baseInfo, ...info });
     }
 
-    private generateEmailTemplate(email : string) : string {
+    private generateVerificationEmail(email : string) : string {
         const mailGenerator = new mailGen({
             theme: 'default',
             product: {
-                name: 'News', // !add styles here!
+                name: 'News',
                 link: 'localhost:3000',
             },
         });
@@ -61,8 +61,8 @@ export class EmailService {
     public async sendVerificationEmail(email : string) {
         const info = {
             subject: 'Registration confirm',
-            html: this.generateEmailTemplate(email),
+            html: this.generateVerificationEmail(email),
         };
-        await this.send(email, info);
+        await this.send(email, info);      
     }
 }

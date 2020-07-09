@@ -6,11 +6,21 @@
   "scripts": {
     "start": "concurrently --handle-input \"wait-on dist/index.js && dotenv nodemon dist/index.js\" \"tsc -w -p tsconfig.json\"",
     "build": "tsc && node src/createConnection.ts",
-    "lint": "npx eslint src/**/*.ts --fix"
+    "lint": "eslint src/**/*.ts --fix"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/katya-ignatyk/news-backend.git"
+  },
+  "husky": {
+    "hooks": {
+        "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+      "*.{js,ts,tsx}": [
+          "eslint --fix"
+      ]
   },
   "keywords": [],
   "author": "",
@@ -32,6 +42,8 @@
     "dotenv-cli": "^3.2.0",
     "eslint": "^7.4.0",
     "eslint-plugin-import": "^2.22.0",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6",

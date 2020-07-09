@@ -4,8 +4,8 @@ import { catchAsync } from '../utils/errors/catchAsync';
 import { validateUserData } from '../utils/validators/userValidation';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
-    const { email, password } = req.body;
-    await validateUserData(email, password);
-    await UserService.Instance.createUser(email, password);
+    const { email, password, username } = req.body;
+    await validateUserData(email, password, username);
+    await UserService.Instance.createUser(email, password, username);
     await EmailService.Instance.sendVerificationEmail(email);
 });
