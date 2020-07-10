@@ -2,7 +2,9 @@ import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
 import { UserExistenceError } from '../utils/errors/userErrors';
+import { envConfig } from '../config';
 import { UserStatus } from '../models/User';
+import { JwtService } from './jwtService';
 
 export class UserService {
     private static instance : UserService;
@@ -23,12 +25,13 @@ export class UserService {
         await this.checkUserExistence(email);
         const hashedPassword = await this.hashPassword(password);
 
-        return this.userRepository.save({
+        const newUser = this.userRepository.save({
             email,
             password: hashedPassword,
             username,
             status: UserStatus.PENDING
-        });  
+        }); 
+        return JwtService.generateToken((await newUser).id, envConfig.JWT_ACCESS_SECRET, '2 days');
     }
 
     private async checkUserExistence(email : string){
