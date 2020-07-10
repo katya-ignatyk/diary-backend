@@ -24,7 +24,7 @@ export class EmailService {
             theme: 'default',
             product: {
                 name: 'News',
-                link: 'localhost:3000',
+                link: envConfig.FE_ADDRESS,
             },
         });
         
@@ -37,7 +37,7 @@ export class EmailService {
                     button: {
                         color: '#33b5e5',
                         text: 'Verify account',
-                        link: 'localhost:3000/confirm',
+                        link: `${envConfig.FE_ADDRESS}/confirm`,
                     },
                 },
             },
@@ -58,11 +58,11 @@ export class EmailService {
         });
     }
 
-    public async sendVerificationEmail(email : string) {
+    public sendVerificationEmail(email : string) {
         const info = {
             subject: 'Registration confirm',
             html: this.generateVerificationEmail(email),
         };
-        await this.send(email, info);      
+        return this.send(email, info);      
     }
 }
