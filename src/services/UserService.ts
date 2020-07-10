@@ -2,6 +2,7 @@ import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
 import { UserExistenceError } from '../utils/errors/userErrors';
+import { UserStatus } from '../models/User';
 
 export class UserService {
     private static instance : UserService;
@@ -18,13 +19,15 @@ export class UserService {
         return bcrypt.hash(password, this.saltRounds);
     }
 
-    public async createUser(email : string, password : string) {
+    public async createUser(email : string, password : string, username : string) {
         await this.checkUserExistence(email);
         const hashedPassword = await this.hashPassword(password);
 
         return this.userRepository.save({
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            username,
+            status: UserStatus.PENDING
         });  
     }
 
@@ -33,7 +36,6 @@ export class UserService {
 
         if(user.length) {
             throw new UserExistenceError(email);
-        }
-            
+        } 
     }
 }

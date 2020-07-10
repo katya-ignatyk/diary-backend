@@ -6,3 +6,7 @@ export const DB_HOST = process.env.DB_HOST;
 export const DB_PORT = process.env.DB_PORT;
 export const DB_IS_LOGGING = process.env.DB_IS_LOGGING;
 export const DB_IS_SYNCHRONIZE = process.env.DB_IS_SYNCHRONIZE || true;
+export const SG_USERNAME = process.env.SG_USERNAME;
+export const SG_PASSWORD = process.env.SG_PASSWORD;
+export const JWT_SECRET = process.env.JWT_SECRET;
+export const FE_ADDRESS = process.env.FE_ADDRESS;
