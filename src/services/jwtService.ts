@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { envConfig } from '../config';
 import { jwtWebTokenError } from '../utils/errors/userErrors/jwtWebTokenError';
 
-type jwtError = 'TokenExpiredError' | 'JsonWebTokenError';
+type JwtError = 'TokenExpiredError' | 'JsonWebTokenError';
 
 export class JwtService {
     
@@ -16,7 +16,7 @@ export class JwtService {
         try {
             return jwt.verify(token, envConfig.JWT_ACCESS_SECRET);
         } catch (error) {
-            const errorName : jwtError = error.name;
+            const errorName : JwtError = error.name;
             throw new jwtWebTokenError(`${errorName}: ${error.message}`);
         }
     }

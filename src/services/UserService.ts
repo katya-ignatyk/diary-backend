@@ -25,13 +25,13 @@ export class UserService {
         await this.checkUserExistence(email);
         const hashedPassword = await this.hashPassword(password);
 
-        const newUser = this.userRepository.save({
+        const newUser = await this.userRepository.save({
             email,
             password: hashedPassword,
             username,
             status: UserStatus.PENDING
         }); 
-        return JwtService.generateToken((await newUser).id, envConfig.JWT_ACCESS_SECRET, '2 days');
+        return JwtService.generateToken(newUser.id, envConfig.JWT_ACCESS_SECRET, envConfig.JWT_ACCESS_EXPIRESIN);
     }
 
     private async checkUserExistence(email : string){
