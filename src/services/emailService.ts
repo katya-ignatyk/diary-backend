@@ -19,7 +19,7 @@ export class EmailService {
         return await this.Transport.sendMail({ ...baseInfo, ...info });
     }
 
-    private generateVerificationEmail(email : string) : string {
+    private generateVerificationEmail(username : string, accessToken : string) : string {
         const mailGenerator = new mailGen({
             theme: 'default',
             product: {
@@ -30,14 +30,14 @@ export class EmailService {
         
         const emailContent = {
             body: {
-                name: email,
+                name: username,
                 intro: 'Welcome to email verification',
                 action: {
                     instructions: 'Please click the button below to verify your account',
                     button: {
                         color: '#33b5e5',
                         text: 'Verify account',
-                        link: `${envConfig.FE_ADDRESS}/confirm`,
+                        link: `${envConfig.FE_ADDRESS}/signUp/verify/${accessToken}`,
                     },
                 },
             },
@@ -58,10 +58,10 @@ export class EmailService {
         });
     }
 
-    public sendVerificationEmail(email : string) {
+    public sendVerificationEmail(email : string, username : string, accessToken : string) {
         const info = {
             subject: 'Registration confirm',
-            html: this.generateVerificationEmail(email),
+            html: this.generateVerificationEmail(username, accessToken),
         };
         return this.send(email, info);      
     }
