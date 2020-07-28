@@ -9,7 +9,7 @@ export class EmailService {
         if (!EmailService.instance)
             EmailService.instance = new EmailService();
         return EmailService.instance;
-    } 
+    }
 
     private async send<T>(email : string, info : T) : Promise<T> {
         const baseInfo = {
@@ -27,7 +27,7 @@ export class EmailService {
                 link: envConfig.FE_ADDRESS,
             },
         });
-        
+
         const emailContent = {
             body: {
                 name: username,
@@ -37,19 +37,19 @@ export class EmailService {
                     button: {
                         color: '#33b5e5',
                         text: 'Verify account',
-                        link: `${envConfig.FE_ADDRESS}/signUp/verify/${accessToken}`,
+                        link: `${envConfig.FE_ADDRESS}/signUp/verify?token=${accessToken}`,
                     },
                 },
             },
         };
-        
+
         return mailGenerator.generate(emailContent);
     }
 
     private get Transport() {
         return nodemailer.createTransport({
             service: 'SendGrid',
-            host: 'smtp.ethereal.email', 
+            host: 'smtp.ethereal.email',
             port: 587,
             auth: {
                 user: envConfig.SG_USERNAME,
@@ -63,6 +63,6 @@ export class EmailService {
             subject: 'Registration confirm',
             html: this.generateVerificationEmail(username, accessToken),
         };
-        return this.send(email, info);      
+        return this.send(email, info);
     }
 }

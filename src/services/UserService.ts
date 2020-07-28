@@ -15,10 +15,6 @@ export class UserService {
         if (!UserService.instance)
             UserService.instance = new UserService();
         return UserService.instance;
-    } 
-    
-    private async hashPassword(password : string) {
-        return bcrypt.hash(password, this.saltRounds);
     }
 
     public async createUser(email : string, password : string, username : string) {
@@ -30,15 +26,27 @@ export class UserService {
             password: hashedPassword,
             username,
             status: UserStatus.PENDING
-        }); 
-        return JwtService.generateToken(newUser.id, envConfig.JWT_ACCESS_SECRET, envConfig.JWT_ACCESS_EXPIRESIN);
+        });
+        return JwtService.generateToken(newUser.id, envConfig.JWT_DEFAULT_SECRET, envConfig.JWT_DEFAULTT_EXPIRESIN);
     }
 
-    private async checkUserExistence(email : string){
+    public async getUserById(id : number) {
+        return this.userRepository.findOne(id);
+    }
+
+    public async updateUserStatus(id : number) {
+        return this.userRepository.update({ id }, { status: UserStatus.VERIFY });
+    }
+
+    private async hashPassword(password : string) {
+        return bcrypt.hash(password, this.saltRounds);
+    }
+
+    private async checkUserExistence(email : string) {
         const user = await this.userRepository.find({ email });
 
-        if(user.length) {
-            throw new UserExistenceError(email);
-        } 
+        if (user.length) {
+            throw new UserExistenceError();
+        }
     }
 }
