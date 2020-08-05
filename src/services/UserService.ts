@@ -1,19 +1,24 @@
-import { getRepository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
 import { UserExistenceError } from '../utils/errors/userErrors';
 import { envConfig } from '../config';
 import { UserStatus } from '../models/User';
 import { JwtService } from './jwtService';
+import { BaseService } from './baseService';
 
-export class UserService {
+export class UserService extends BaseService<User>{
     private static instance : UserService;
     private readonly saltRounds = 10;
-    private readonly userRepository = getRepository(User);
+
+    constructor(repository : Repository<User>) {
+        super(repository);
+    }
 
     public static get Instance() : UserService {
+        const userRepository = getRepository(User);
         if (!UserService.instance)
-            UserService.instance = new UserService();
+            UserService.instance = new UserService(userRepository);
         return UserService.instance;
     }
 
@@ -21,21 +26,18 @@ export class UserService {
         await this.checkUserExistence(email);
         const hashedPassword = await this.hashPassword(password);
 
-        const newUser = await this.userRepository.save({
+        const newUser = await this.save({
             email,
             password: hashedPassword,
             username,
             status: UserStatus.PENDING
         });
-        return JwtService.generateToken(newUser.id, envConfig.JWT_DEFAULT_SECRET, envConfig.JWT_DEFAULTT_EXPIRESIN);
+        return JwtService.generateToken(newUser.id, envConfig.JWT_DEFAULT_SECRET, envConfig.JWT_DEFAULT_EXPIRESIN);
     }
 
-    public async getUserById(id : number) {
-        return this.userRepository.findOne(id);
-    }
-
-    public async updateUserStatus(id : number) {
-        return this.userRepository.update({ id }, { status: UserStatus.VERIFY });
+    public verifySignUp(id : number) {
+        this.update({ id }, { status: UserStatus.VERIFY });
+        return this.findOne({ id });
     }
 
     private async hashPassword(password : string) {
@@ -43,9 +45,9 @@ export class UserService {
     }
 
     private async checkUserExistence(email : string) {
-        const user = await this.userRepository.find({ email });
+        const user = await this.findOne({ email });
 
-        if (user.length) {
+        if (user) {
             throw new UserExistenceError();
         }
     }
