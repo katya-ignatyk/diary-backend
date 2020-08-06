@@ -6,15 +6,38 @@ import { envConfig } from '../config';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
     const { email, password, username } = req.body;
+
     await validateUserData(email, password, username);
-    const accessToken = await UserService.Instance.createUser(email, password, username);
-    await EmailService.Instance.sendVerificationEmail(email, username, accessToken);
-    res.send({ accessToken : accessToken });
+    const verificationToken = await UserService.Instance.createUser(email, password, username);
+    await EmailService.Instance.sendVerificationEmail(email, username, verificationToken);
+
+    res.status(201).send({ 
+        message: 'Success! Check your email to verify account' 
+    });
 });
 
 export const verifySignUp = catchAsync(async (req : Request, res : Response) => {
-    const token = req.params.token;
-    const verifiedAccessToken = await JwtService.verifyAndDecodeToken(token);
-    const refreshToken = JwtService.generateToken(verifiedAccessToken.id, envConfig.JWT_REFRESH_SECRET, envConfig.JWT_REFRESH_EXPIRESIN);
-    res.status(200).send({ refreshToken, accessToken : verifiedAccessToken });
+    const { token } = req.body;
+
+    const verifiedToken = await JwtService.verifyAndDecodeToken(token);
+    const user = UserService.Instance.verifySignUp(verifiedToken.id);
+
+    const { email, username } = user;    
+    const refreshToken = JwtService.generateToken(
+        verifiedToken.id, 
+        envConfig.JWT_REFRESH_SECRET, 
+        envConfig.JWT_REFRESH_EXPIRESIN
+    );
+    const accessToken = JwtService.generateToken(
+        verifiedToken.id, 
+        envConfig.JWT_ACCESS_SECRET, 
+        envConfig.JWT_ACCESS_EXPIRESIN
+    );
+    
+    res.status(200).send({ 
+        user: { email, username }, 
+        refreshToken, 
+        accessToken, 
+        message: 'Success! You can sign in now' 
+    });
 });

@@ -11,10 +11,19 @@ const port = envConfig.PORT;
     await createConnectionWithDB();
     const app = express();
     app.use(bodyParser.json());
-    app.use(router); 
-    app.use(errorHandler);  
+    app.use((req, res, next) => {
+        res.header(
+            'Access-Control-Allow-Origin',
+            envConfig.FE_ADDRESS,
+        );
+        res.header('Access-Control-Allow-Headers', '*');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT');
+        next();
+    });
+    app.use(router);
+    app.use(errorHandler);
     app.listen(port, () => {
         console.log(`server started at ${port}`);
-    }); 
+    });
 })();
 

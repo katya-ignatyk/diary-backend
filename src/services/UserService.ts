@@ -1,44 +1,53 @@
-import { getRepository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
 import { UserExistenceError } from '../utils/errors/userErrors';
 import { envConfig } from '../config';
 import { UserStatus } from '../models/User';
 import { JwtService } from './jwtService';
+import { BaseService } from './baseService';
 
-export class UserService {
+export class UserService extends BaseService<User>{
     private static instance : UserService;
     private readonly saltRounds = 10;
-    private readonly userRepository = getRepository(User);
+
+    constructor() {
+        super(getRepository(User));
+    }
 
     public static get Instance() : UserService {
         if (!UserService.instance)
             UserService.instance = new UserService();
         return UserService.instance;
-    } 
-    
-    private async hashPassword(password : string) {
-        return bcrypt.hash(password, this.saltRounds);
     }
 
     public async createUser(email : string, password : string, username : string) {
         await this.checkUserExistence(email);
         const hashedPassword = await this.hashPassword(password);
 
-        const newUser = await this.userRepository.save({
+        const newUser = await this.save({
             email,
             password: hashedPassword,
             username,
             status: UserStatus.PENDING
-        }); 
-        return JwtService.generateToken(newUser.id, envConfig.JWT_ACCESS_SECRET, envConfig.JWT_ACCESS_EXPIRESIN);
+        });
+        return JwtService.generateToken(newUser.id, envConfig.JWT_DEFAULT_SECRET, envConfig.JWT_DEFAULT_EXPIRESIN);
     }
 
-    private async checkUserExistence(email : string){
-        const user = await this.userRepository.find({ email });
+    public verifySignUp(id : number) {
+        this.update({ id }, { status: UserStatus.VERIFY });
+        return this.findOne({ id });
+    }
 
-        if(user.length) {
-            throw new UserExistenceError(email);
-        } 
+    private async hashPassword(password : string) {
+        return bcrypt.hash(password, this.saltRounds);
+    }
+
+    private async checkUserExistence(email : string) {
+        const user = await this.findOne({ email });
+
+        if (user) {
+            throw new UserExistenceError();
+        }
     }
 }

@@ -4,6 +4,6 @@ import { SignUpController } from '../controllers';
 const router = express.Router();
 
 router.post('/signUp', SignUpController.signUp);
-router.get('/signUp/verify/:token', SignUpController.verifySignUp);
+router.post('/signUp/verify', SignUpController.verifySignUp);
 
 export default router;
