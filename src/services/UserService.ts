@@ -11,14 +11,13 @@ export class UserService extends BaseService<User>{
     private static instance : UserService;
     private readonly saltRounds = 10;
 
-    constructor(repository : Repository<User>) {
-        super(repository);
+    constructor() {
+        super(getRepository(User));
     }
 
     public static get Instance() : UserService {
-        const userRepository = getRepository(User);
         if (!UserService.instance)
-            UserService.instance = new UserService(userRepository);
+            UserService.instance = new UserService();
         return UserService.instance;
     }
 
