@@ -9,11 +9,19 @@ import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
     const { inputEmail, inputPassword, inputUsername } = req.body;
+
     await validateUserData(inputEmail, inputPassword, inputUsername);
     const { id, email, username } = await UserService.Instance.createUser(inputEmail, inputPassword, inputUsername);
-    const verificationToken = JwtService.generateToken(id, envConfig.JWT_DEFAULT_SECRET, envConfig.JWT_DEFAULT_EXPIRESIN);
+    const verificationToken = JwtService.generateToken(
+        id, 
+        envConfig.JWT_DEFAULT_SECRET, 
+        envConfig.JWT_DEFAULT_EXPIRESIN
+    );
     await EmailService.Instance.sendVerificationEmail(email, username, verificationToken);
-    res.status(201).send({ message: 'Success! Check your email to verify account' });
+
+    res.status(201).send({ 
+        message: 'Success! Check your email to verify account' 
+    });
 });
 
 export const verifySignUp = catchAsync(async (req : Request, res : Response) => {
@@ -31,7 +39,21 @@ export const verifySignUp = catchAsync(async (req : Request, res : Response) => 
     }
     
     const { email, username } = user;
-    const refreshToken = JwtService.generateToken(verifiedToken.id, envConfig.JWT_REFRESH_SECRET, envConfig.JWT_REFRESH_EXPIRESIN);
-    const accessToken = JwtService.generateToken(verifiedToken.id, envConfig.JWT_ACCESS_SECRET, envConfig.JWT_ACCESS_EXPIRESIN);
-    res.status(200).send({ user: { email, username }, refreshToken, accessToken, message: 'Success! You can sign in now' });
+    const refreshToken = JwtService.generateToken(
+        verifiedToken.id, 
+        envConfig.JWT_REFRESH_SECRET, 
+        envConfig.JWT_REFRESH_EXPIRESIN
+    );
+    const accessToken = JwtService.generateToken(
+        verifiedToken.id, 
+        envConfig.JWT_ACCESS_SECRET, 
+        envConfig.JWT_ACCESS_EXPIRESIN
+    );
+
+    res.status(200).send({ 
+        user: { email, username }, 
+        refreshToken, 
+        accessToken, 
+        message: 'Success! You can sign in now' 
+    });
 });

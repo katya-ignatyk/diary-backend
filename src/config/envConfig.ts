@@ -14,4 +14,4 @@ export const JWT_DEFAULT_SECRET = process.env.JWT_DEFAULT_SECRET || '';
 export const JWT_ACCESS_EXPIRESIN = process.env.JWT_ACCESS_EXPIRESIN || '';
 export const JWT_REFRESH_EXPIRESIN = process.env.JWT_REFRESH_EXPIRESIN || '';
 export const JWT_DEFAULT_EXPIRESIN = process.env.JWT_DEFAULT_EXPIRESIN || '';
-export const FE_ADDRESS = process.env.FE_ADDRESS;
+export const FE_ADDRESS = process.env.FE_ADDRESS || '';

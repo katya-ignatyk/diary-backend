@@ -1,29 +1,22 @@
-import { getRepository, Repository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
-import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifedError } from '../utils/errors/userErrors';
-import { envConfig } from '../config';
+import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/userErrors';
 import { UserStatus } from '../models/User';
-import { JwtService } from './jwtService';
 import { BaseService } from './baseService';
 
 export class UserService extends BaseService<User>{
     private static instance : UserService;
     private readonly saltRounds = 10;
 
-    constructor(repository : Repository<User>) {
-        super(repository);
+    constructor() {
+        super(getRepository(User));
     }
 
     public static get Instance() : UserService {
-        const userRepository = getRepository(User);
         if (!UserService.instance)
-            UserService.instance = new UserService(userRepository);
+            UserService.instance = new UserService();
         return UserService.instance;
-    }
-
-    private async hashPassword(password : string) {
-        return bcrypt.hash(password, this.saltRounds);
     }
 
     public async createUser(email : string, password : string, username : string) {
@@ -49,7 +42,7 @@ export class UserService extends BaseService<User>{
     public async authorizeUser(inputEmail : string, password : string) {
         const user = await this.checkEmailExistence(inputEmail);
         if (user.status !== UserStatus.VERIFY) {
-            throw new UserNotVerifedError();
+            throw new UserNotVerifiedError();
         }
 
         const match = await bcrypt.compare(password, user.password);
@@ -80,6 +73,14 @@ export class UserService extends BaseService<User>{
 
         const hashedPassword = await this.hashPassword(password);
         await this.update({ id }, { password: hashedPassword });
+    }
+
+    public getUserById(id : number) {
+        return this.findOne({ id });
+    }
+
+    private hashPassword(password : string) {
+        return bcrypt.hash(password, this.saltRounds);
     }
 
 }

@@ -11,12 +11,12 @@ export class EmailService {
         return EmailService.instance;
     }
 
-    private async send<T>(email : string, info : T) : Promise<T> {
+    private send<T>(email : string, info : T) : Promise<T> {
         const baseInfo = {
             from: 'news@gmail.com',
             to: email
         };
-        return await this.Transport.sendMail({ ...baseInfo, ...info });
+        return this.Transport.sendMail({ ...baseInfo, ...info });
     }
 
     private generateVerificationEmail(username : string, token : string) : string {
