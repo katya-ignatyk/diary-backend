@@ -3,12 +3,20 @@ import { UserService, EmailService, JwtService } from '../services';
 import { catchAsync } from '../utils/errors/catchAsync';
 import { validateUserData } from '../utils/validators/userValidation';
 import { envConfig } from '../config';
+import { isUserToken } from '../utils/typeGuards';
+import { UserNotFoundError } from '../utils/errors/userErrors';
+import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
-    const { email, password, username } = req.body;
+    const { inputEmail, inputPassword, inputUsername } = req.body;
 
-    await validateUserData(email, password, username);
-    const verificationToken = await UserService.Instance.createUser(email, password, username);
+    await validateUserData(inputEmail, inputPassword, inputUsername);
+    const { id, email, username } = await UserService.Instance.createUser(inputEmail, inputPassword, inputUsername);
+    const verificationToken = JwtService.generateToken(
+        id, 
+        envConfig.JWT_DEFAULT_SECRET, 
+        envConfig.JWT_DEFAULT_EXPIRESIN
+    );
     await EmailService.Instance.sendVerificationEmail(email, username, verificationToken);
 
     res.status(201).send({ 
@@ -18,11 +26,19 @@ export const signUp = catchAsync(async (req : Request, res : Response) => {
 
 export const verifySignUp = catchAsync(async (req : Request, res : Response) => {
     const { token } = req.body;
+    const verifiedToken = await JwtService.verifyAndDecodeToken(token, envConfig.JWT_DEFAULT_SECRET);
 
-    const verifiedToken = await JwtService.verifyAndDecodeToken(token);
-    const user = UserService.Instance.verifySignUp(verifiedToken.id);
+    if (!isUserToken(verifiedToken)) {
+        throw new InvalidTokenError();
+    } 
 
-    const { email, username } = user;    
+    const user = await UserService.Instance.verifySignUp(verifiedToken.id);
+
+    if (!user) {
+        throw new UserNotFoundError();
+    }
+    
+    const { email, username } = user;
     const refreshToken = JwtService.generateToken(
         verifiedToken.id, 
         envConfig.JWT_REFRESH_SECRET, 
