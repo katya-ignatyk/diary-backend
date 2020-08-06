@@ -49,7 +49,7 @@ export const verifySignUp = catchAsync(async (req : Request, res : Response) => 
         envConfig.JWT_ACCESS_SECRET, 
         envConfig.JWT_ACCESS_EXPIRESIN
     );
-
+    
     res.status(200).send({ 
         user: { email, username }, 
         refreshToken, 

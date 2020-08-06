@@ -1,4 +1,4 @@
-import { getRepository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
 import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/userErrors';
