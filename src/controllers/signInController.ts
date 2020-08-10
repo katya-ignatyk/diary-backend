@@ -7,8 +7,8 @@ import { UserNotFoundError } from '../utils/errors/userErrors';
 import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signIn = catchAsync(async (req : Request, res : Response) => {
-    const { inputEmail, inputPassword } = req.body;
-    const { id, email, username } = await UserService.Instance.authorizeUser(inputEmail, inputPassword);
+    const { email, password } = req.body;
+    const { id, username } = await UserService.Instance.authorizeUser(email, password);
 
     const accessToken = JwtService.generateToken(
         id, 
@@ -22,7 +22,7 @@ export const signIn = catchAsync(async (req : Request, res : Response) => {
     );
     
     res.status(201).send({ 
-        user : { email, username }, 
+        user : { id, email, username }, 
         accessToken, refreshToken, 
         message: 'Success!' 
     });
@@ -78,10 +78,10 @@ export const fetchUser = catchAsync(async(req : Request, res : Response) => {
         throw new UserNotFoundError();
     }
 
-    const { email, username } = user;
+    const { id, email, username } = user;
 
     res.status(201).send({ 
-        user: { email, username } 
+        user: { id, email, username } 
     });
 });
 
@@ -112,10 +112,10 @@ export const refreshAccessToken = catchAsync(async(req : Request, res : Response
         throw new UserNotFoundError();
     }
 
-    const { email, username } = user;
+    const { id, email, username } = user;
     res.status(200).send({ 
         refreshToken: newRefreshToken, 
         accessToken: newAccessToken, 
-        user: { email, username } 
+        user: { id, email, username } 
     });
 });

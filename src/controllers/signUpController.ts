@@ -8,10 +8,10 @@ import { UserNotFoundError } from '../utils/errors/userErrors';
 import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
-    const { inputEmail, inputPassword, inputUsername } = req.body;
+    const { email, username, password } = req.body;
 
-    await validateUserData(inputEmail, inputPassword, inputUsername);
-    const { id, email, username } = await UserService.Instance.createUser(inputEmail, inputPassword, inputUsername);
+    await validateUserData(email, password, username);
+    const { id } = await UserService.Instance.createUser(email, password, username);
     const verificationToken = JwtService.generateToken(
         id, 
         envConfig.JWT_DEFAULT_SECRET, 

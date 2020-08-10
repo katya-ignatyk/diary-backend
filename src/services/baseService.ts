@@ -1,10 +1,10 @@
-import { Repository, ObjectLiteral } from 'typeorm';
+import { Repository, ObjectLiteral, FindOneOptions } from 'typeorm';
 
 export class BaseService<E extends ObjectLiteral> {
     constructor(protected repository : Repository<E>) {
     }
 
-    public findOne(option : Partial<E>) : Promise<E | undefined> {
+    public findOne(option : Partial<E> | FindOneOptions<E>) : Promise<E | undefined> {
         return this.repository.findOne(option); 
     }
 
