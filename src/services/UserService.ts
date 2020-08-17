@@ -41,6 +41,7 @@ export class UserService extends BaseService<User>{
 
     public async authorizeUser(inputEmail : string, password : string) {
         const user = await this.checkEmailExistence(inputEmail);
+        
         if (user.status !== UserStatus.VERIFY) {
             throw new UserNotVerifiedError();
         }
@@ -75,8 +76,19 @@ export class UserService extends BaseService<User>{
         await this.update({ id }, { password: hashedPassword });
     }
 
-    public getUserById(id : number) {
-        return this.findOne({ id });
+    public async getUserById(id : number) {
+        const user = await this.findOne({ 
+            relations: ['profile'],
+            where: {
+                id
+            }
+        });
+
+        if (!user) {
+            throw new UserNotFoundError();
+        }
+
+        return user;
     }
 
     private hashPassword(password : string) {

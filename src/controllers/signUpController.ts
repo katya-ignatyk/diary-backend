@@ -38,7 +38,7 @@ export const verifySignUp = catchAsync(async (req : Request, res : Response) => 
         throw new UserNotFoundError();
     }
     
-    const { email, username } = user;
+    const { id, email, username } = user;
     const refreshToken = JwtService.generateToken(
         verifiedToken.id, 
         envConfig.JWT_REFRESH_SECRET, 
@@ -51,7 +51,7 @@ export const verifySignUp = catchAsync(async (req : Request, res : Response) => 
     );
     
     res.status(200).send({ 
-        user: { email, username }, 
+        user: { id, email, username }, 
         refreshToken, 
         accessToken, 
         message: 'Success! You can sign in now' 

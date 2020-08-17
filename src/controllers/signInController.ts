@@ -3,7 +3,6 @@ import { catchAsync } from '../utils/errors/catchAsync';
 import { UserService, JwtService, EmailService } from '../services';
 import { envConfig } from '../config';
 import { isUserToken } from '../utils/typeGuards';
-import { UserNotFoundError } from '../utils/errors/userErrors';
 import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signIn = catchAsync(async (req : Request, res : Response) => {
@@ -74,10 +73,6 @@ export const fetchUser = catchAsync(async(req : Request, res : Response) => {
 
     const user = await UserService.Instance.getUserById(verifiedToken.id);
 
-    if (!user) {
-        throw new UserNotFoundError();
-    }
-
     const { id, email, username } = user;
 
     res.status(201).send({ 
@@ -107,10 +102,6 @@ export const refreshAccessToken = catchAsync(async(req : Request, res : Response
         envConfig.JWT_ACCESS_EXPIRESIN
     );
     const user = await UserService.Instance.getUserById(verifiedRefreshToken.id);
-
-    if (!user) {
-        throw new UserNotFoundError();
-    }
 
     const { id, email, username } = user;
     res.status(200).send({ 
