@@ -1,13 +1,14 @@
 import { Response, Request } from 'express';
 import { catchAsync } from '../utils/errors/catchAsync';
-import { UserService, JwtService, EmailService } from '../services';
+import { UserService, JwtService, EmailService, ProfileService, CloudinaryService } from '../services';
 import { envConfig } from '../config';
 import { isUserToken } from '../utils/typeGuards';
 import { InvalidTokenError } from '../utils/errors/jwtErrors';
 
 export const signIn = catchAsync(async (req : Request, res : Response) => {
     const { email, password } = req.body;
-    const { id, username } = await UserService.Instance.authorizeUser(email, password);
+    const user = await UserService.Instance.authorizeUser(email, password);
+    const { id, username } = user;
 
     const accessToken = JwtService.generateToken(
         id, 
@@ -19,10 +20,34 @@ export const signIn = catchAsync(async (req : Request, res : Response) => {
         envConfig.JWT_REFRESH_SECRET, 
         envConfig.JWT_REFRESH_EXPIRESIN
     );
-    
+
+    const profile = await ProfileService.Instance.getProfileById(user.profile.id);
+    const imageUrl = await CloudinaryService.Instance.getImageUrl(user.profile.avatarId);
+
+    const { 
+        id: profileId,
+        boy_name,
+        boy_age,
+        girl_name,
+        girl_age,
+    } = profile;
+
     res.status(201).send({ 
-        user : { id, email, username }, 
-        accessToken, refreshToken, 
+        user : { 
+            id, 
+            email, 
+            username 
+        }, 
+        profile: {
+            id: profileId,
+            boy_name,
+            boy_age,
+            girl_name,
+            girl_age,
+            avatarUrl: imageUrl
+        },
+        accessToken, 
+        refreshToken, 
         message: 'Success!' 
     });
 });
@@ -75,12 +100,35 @@ export const fetchUser = catchAsync(async(req : Request, res : Response) => {
 
     const { id, email, username } = user;
 
+    const profile = await ProfileService.Instance.getProfileById(user.profile.id);
+    const imageUrl = CloudinaryService.Instance.getImageUrl(user.profile.avatarId);
+
+    const { 
+        id: profileId,
+        boy_name,
+        boy_age,
+        girl_name,
+        girl_age,
+    } = profile;
+
     res.status(201).send({ 
-        user: { id, email, username } 
+        user: { 
+            id, 
+            email, 
+            username 
+        },
+        profile: {
+            id: profileId,
+            boy_name,
+            boy_age,
+            girl_name,
+            girl_age,
+            avatarUrl: imageUrl
+        }
     });
 });
 
-export const refreshAccessToken = catchAsync(async(req : Request, res : Response) => {
+export const auth = catchAsync(async(req : Request, res : Response) => {
     const { refreshToken } = req.body;
     const verifiedRefreshToken = JwtService.verifyAndDecodeToken(
         refreshToken, 
@@ -104,9 +152,33 @@ export const refreshAccessToken = catchAsync(async(req : Request, res : Response
     const user = await UserService.Instance.getUserById(verifiedRefreshToken.id);
 
     const { id, email, username } = user;
+
+    const profile = await ProfileService.Instance.getProfileById(user.profile.id);
+    const imageUrl = await CloudinaryService.Instance.getImageUrl(user.profile.avatarId);
+
+    const { 
+        id: profileId,
+        boy_name,
+        boy_age,
+        girl_name,
+        girl_age,
+    } = profile;
+
     res.status(200).send({ 
         refreshToken: newRefreshToken, 
         accessToken: newAccessToken, 
-        user: { id, email, username } 
+        user: { 
+            id, 
+            email, 
+            username 
+        },
+        profile: {
+            id: profileId,
+            boy_name,
+            boy_age,
+            girl_name,
+            girl_age,
+            avatarUrl: imageUrl
+        } 
     });
 });

@@ -17,38 +17,33 @@ export class ProfileService extends BaseService<Profile> {
       return ProfileService.instance;
   }
 
-  public async saveProfileChanges(userId : number, girl_name : string, girl_age : number, boy_name : string, boy_age : number) {
-      const user = await UserService.Instance.getUserById(userId);
-
-      if (user.profile) {
-          await this.update(
-              { id: user.profile.id }, 
-              { girl_name, girl_age, boy_name, boy_age }
-          );
-          return this.findOne({ id: user.profile.id });
-      }
-      else {
-          return this.createProfile(userId, girl_name, girl_age, boy_name, boy_age);
-      }
-  }
-
-  public async checkProfileExistence(id : number) {
-      const user = await UserService.Instance.getUserById(id);
-
-      if (!user.profile) {
+  public async getProfileById(id : number) {
+      const profile = await this.findOne({ id });
+      
+      if (!profile) {
           throw new ProfileNotFoundError();
       }
-      
-      return user.profile;
+      return profile;
   }
 
-  public async createProfile(userId : number, girl_name : string, girl_age : number, boy_name : string, boy_age : number) {
+  public async updateProfile <T = Profile>(id : number, data : Partial<T>) {
+      await this.update(
+          { id }, 
+          data
+      );
+
+      return this.findOne({ id });
+  }
+
+  public async create(userId : number, girl_name : string, girl_age : number, boy_name : string, boy_age : number, avatarId : string) {
       const profile = await this.save({ 
           girl_name, 
           girl_age, 
           boy_age, 
-          boy_name 
+          boy_name,
+          avatarId
       }); 
+      
       UserService.Instance.update({ id: userId }, { profile });
       return profile; 
   }

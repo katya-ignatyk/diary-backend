@@ -56,7 +56,12 @@ export class UserService extends BaseService<User>{
     }
 
     public async checkEmailExistence(email : string) {
-        const user = await this.findOne({ email });
+        const user = await this.findOne({ 
+            relations: ['profile'],
+            where: {
+                email
+            }
+        });
 
         if (!user) {
             throw new UserNotFoundError();

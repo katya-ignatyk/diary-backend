@@ -16,4 +16,7 @@ export class Profile {
 
     @Column()
     boy_age! : number;
+
+    @Column()
+    avatarId! : string;
 }
