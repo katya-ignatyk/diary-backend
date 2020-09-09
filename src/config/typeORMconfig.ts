@@ -1,5 +1,5 @@
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { User, Profile } from '../models';
+import { User, Profile, Note } from '../models';
 import { DB_HOST, DB_NAME, DB_PORT, PG_PASSWORD, PG_USERNAME, DB_IS_SYNCHRONIZE, DB_IS_LOGGING } from './envConfig';
 
 export const typeOrmConfig : PostgresConnectionOptions = {
@@ -13,6 +13,7 @@ export const typeOrmConfig : PostgresConnectionOptions = {
     logging: DB_IS_LOGGING,
     entities: [
         User,
-        Profile
+        Profile,
+        Note
     ]
 };

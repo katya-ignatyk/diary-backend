@@ -26,7 +26,7 @@ export class UserService extends BaseService<User>{
             throw new UserExistenceError();
         }
         const hashedPassword = await this.hashPassword(password);
-        return await this.save({
+        return this.save({
             email,
             password: hashedPassword,
             username,

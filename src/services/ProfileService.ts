@@ -18,7 +18,12 @@ export class ProfileService extends BaseService<Profile> {
   }
 
   public async getProfileById(id : number) {
-      const profile = await this.findOne({ id });
+      const profile = await this.findOne({ 
+          relations: ['notes'],
+          where: {
+              id
+          }
+      });
       
       if (!profile) {
           throw new ProfileNotFoundError();
@@ -26,7 +31,7 @@ export class ProfileService extends BaseService<Profile> {
       return profile;
   }
 
-  public async updateProfile <T = Profile>(id : number, data : Partial<T>) {
+  public async updateProfile (id : number, data : Partial<Profile>) {
       await this.update(
           { id }, 
           data

@@ -23,7 +23,7 @@ export class User {
     @Column({ enum : UserStatus })
     status! : UserStatus
 
-    @OneToOne(type => Profile)
+    @OneToOne(() => Profile)
     @JoinColumn()
     profile! : Profile
 }

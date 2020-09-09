@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, OneToMany, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Note } from './Note';
 
 @Entity('profile')
 export class Profile {
@@ -19,4 +20,7 @@ export class Profile {
 
     @Column()
     avatarId! : string;
+
+    @OneToMany(() => Note, (notes) => notes.profile)
+    notes! : Note[];
 }

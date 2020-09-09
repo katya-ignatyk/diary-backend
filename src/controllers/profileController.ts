@@ -1,77 +1,56 @@
 import { Request, Response } from 'express';
 import { catchAsync } from '../utils/errors/catchAsync';
-import { ProfileService, CloudinaryService } from '../services';
-import { cloudinaryFolders } from '../enums';
-import { constants } from '../config';
-import { ProfileNotFoundError } from '../utils/errors/profileErrors';
+import { NoteService, ProfileService } from '../services';
 
-export const updateProfile = catchAsync(async (req : Request, res : Response) => {
+export const addNote = catchAsync(async (req : Request, res : Response) => {
     const { 
-        id,
-        girl_name, 
-        girl_age, 
-        boy_name,   
-        boy_age
+        note: {
+            title, 
+            date, 
+            text, 
+        },
+        profileId 
     } = req.body;
 
-    const profile = await ProfileService.Instance.updateProfile(
+    const note = await NoteService.Instance.createNote(profileId, title, text, date);
+
+    res.send({ note });
+});
+
+export const getNotes = catchAsync(async (req : Request, res : Response) => {
+    const { profileId } = req.body;
+
+    const { notes } = await ProfileService.Instance.getProfileById(profileId);
+
+    res.send({ notes });
+});
+
+export const updateNote= catchAsync(async (req : Request, res : Response) => {
+    const { 
         id,
-        {
-            girl_name, 
-            girl_age, 
-            boy_name,   
-            boy_age
-        }
-    );
+        text,
+        date,
+        title
+    } = req.body;
 
-    if (!profile) {
-        throw new ProfileNotFoundError();
-    }
-
-    res.send({
-        id: profile.id,
-        girl_name: profile.girl_name, 
-        girl_age: profile.girl_age, 
-        boy_name : profile.boy_name,   
-        boy_age: profile.boy_age
+    const note = await NoteService.Instance.updateNote(id, {
+        text,
+        date,
+        title
     });
+
+    res.send({ note });
 });
 
-export const updateAvatar = catchAsync(async (req : Request, res : Response) => {
-    const { id } = req.body;
-    const image = req.file;
+export const deleteNote = catchAsync(async (req : Request, res : Response) => {
+    const { 
+        id,
+        profileId
+    } = req.body;
 
-    const profile = await ProfileService.Instance.getProfileById(id);
+    await NoteService.Instance.deleteNote(id);
 
-    const imageId = await CloudinaryService.Instance.upload(
-        { folder: cloudinaryFolders.avatars }, 
-        image
-    );
-    const imageUrl = CloudinaryService.Instance.getImageUrl(imageId);
-    await ProfileService.Instance.updateProfile(
-        id, 
-        { avatarId: imageId }
-    );
-    
-    profile.avatarId !== constants.avatar && CloudinaryService.Instance.delete(profile.avatarId);
+    const { notes } = await ProfileService.Instance.getProfileById(profileId);
 
-    res.send({ 
-        avatarUrl: imageUrl,
-    });
-});
-
-export const deleteAvatar = catchAsync(async (req : Request, res : Response) => {
-    const { id } = req.body;
-    const profile = await ProfileService.Instance.getProfileById(id);
-
-    await CloudinaryService.Instance.delete(profile.avatarId);
-    await ProfileService.Instance.updateProfile(
-        id, 
-        { avatarId: constants.avatar }
-    );
-    const imageUrl = CloudinaryService.Instance.getImageUrl(constants.avatar);
-
-    res.send({
-        avatarUrl: imageUrl 
-    });
+    res.send({ notes });
 });
