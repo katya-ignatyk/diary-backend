@@ -1,0 +1,1 @@
+export { PhotoNotFoundError } from './PhotoNotFoundError';

@@ -1,4 +1,4 @@
-import { Repository, ObjectLiteral, FindOneOptions } from 'typeorm';
+import { Repository, ObjectLiteral, FindOneOptions, DeleteResult } from 'typeorm';
 
 export class BaseService<E extends ObjectLiteral> {
     constructor(protected repository : Repository<E>) {
@@ -16,7 +16,7 @@ export class BaseService<E extends ObjectLiteral> {
         return this.repository.save(entity); 
     } 
 
-    public delete(criteria : Partial<E>) : Promise<unknown> {
+    public delete(criteria : Partial<E> | number | number[]) : Promise<DeleteResult> {
         return this.repository.delete(criteria); 
     }
 }

@@ -1,6 +1,6 @@
 import { getRepository } from 'typeorm';
 import { Profile } from '../models';
-import { ProfileNotFoundError } from '../utils/errors/profileErrors';
+import { ProfileNotFoundError } from '../utils/errors/profile';
 import { BaseService } from './baseService';
 import { UserService } from './userService';
 
@@ -19,7 +19,7 @@ export class ProfileService extends BaseService<Profile> {
 
   public async getProfileById(id : number) {
       const profile = await this.findOne({ 
-          relations: ['notes'],
+          relations: ['notes', 'albums'],
           where: {
               id
           }
@@ -37,7 +37,7 @@ export class ProfileService extends BaseService<Profile> {
           data
       );
 
-      return this.findOne({ id });
+      return this.getProfileById(id);
   }
 
   public async create(userId : number, girl_name : string, girl_age : number, boy_name : string, boy_age : number, avatarId : string) {

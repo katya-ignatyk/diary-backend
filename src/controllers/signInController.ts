@@ -3,7 +3,7 @@ import { catchAsync } from '../utils/errors/catchAsync';
 import { UserService, JwtService, EmailService, ProfileService, CloudinaryService } from '../services';
 import { envConfig } from '../config';
 import { isUserToken } from '../utils/typeGuards';
-import { InvalidTokenError } from '../utils/errors/jwtErrors';
+import { InvalidTokenError } from '../utils/errors/jwt';
 
 export const signIn = catchAsync(async (req : Request, res : Response) => {
     const { email, password } = req.body;

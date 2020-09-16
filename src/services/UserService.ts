@@ -1,7 +1,7 @@
 import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
-import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/userErrors';
+import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/user';
 import { UserStatus } from '../models/User';
 import { BaseService } from './baseService';
 

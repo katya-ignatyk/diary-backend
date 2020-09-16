@@ -3,7 +3,35 @@ import { catchAsync } from '../utils/errors/catchAsync';
 import { ProfileService, CloudinaryService } from '../services';
 import { cloudinaryFolders } from '../enums';
 import { constants } from '../config';
-import { ProfileNotFoundError } from '../utils/errors/profileErrors';
+import { ProfileNotFoundError } from '../utils/errors/profile';
+import { validateProfileData } from '../utils/validators';
+
+export const getProfile = catchAsync(async (req : Request, res : Response) => {
+    const { id } = req.body;
+    
+    const {
+        id: profileid, 
+        girl_name,
+        girl_age,
+        boy_name,
+        boy_age,
+        avatarId
+    } = await ProfileService.Instance.getProfileById(id);
+
+    const avatarUrl = await CloudinaryService.Instance.getImageUrl(avatarId);
+
+    res.send({
+        profile: {
+            profileid, 
+            girl_name,
+            girl_age,
+            boy_name,
+            boy_age,
+            avatarUrl
+        }
+        
+    });
+});
 
 export const updateProfile = catchAsync(async (req : Request, res : Response) => {
     const { 
@@ -14,6 +42,14 @@ export const updateProfile = catchAsync(async (req : Request, res : Response) =>
         boy_age
     } = req.body;
 
+    await validateProfileData( 
+        girl_name, 
+        girl_age, 
+        boy_name,   
+        boy_age, 
+        id
+    );
+    
     const profile = await ProfileService.Instance.updateProfile(
         id,
         {
@@ -43,25 +79,39 @@ export const updateAvatar = catchAsync(async (req : Request, res : Response) => 
 
     const { avatarId } = await ProfileService.Instance.getProfileById(id);
 
-    const imageId = await CloudinaryService.Instance.upload(
+    const { url, public_id } = await CloudinaryService.Instance.upload(
         { folder: cloudinaryFolders.avatars }, 
         image
     );
-    const imageUrl = CloudinaryService.Instance.getImageUrl(imageId);
-    await ProfileService.Instance.updateProfile(
+    
+    const {
+        id: profileid, 
+        girl_name,
+        girl_age,
+        boy_name,
+        boy_age,
+    } = await ProfileService.Instance.updateProfile(
         id, 
-        { avatarId: imageId }
+        { avatarId: public_id }
     );
     
     avatarId !== constants.avatar && CloudinaryService.Instance.delete(avatarId);
 
     res.send({ 
-        avatarUrl: imageUrl,
+        profile: {
+            profileid, 
+            girl_name,
+            girl_age,
+            boy_name,
+            boy_age,
+            avatarUrl: url
+        }
     });
 });
 
 export const deleteAvatar = catchAsync(async (req : Request, res : Response) => {
     const { id } = req.body;
+    
     const { avatarId } = await ProfileService.Instance.getProfileById(id);
 
     await CloudinaryService.Instance.delete(avatarId);
@@ -69,9 +119,6 @@ export const deleteAvatar = catchAsync(async (req : Request, res : Response) => 
         id, 
         { avatarId: constants.avatar }
     );
-    const imageUrl = CloudinaryService.Instance.getImageUrl(constants.avatar);
 
-    res.send({
-        avatarUrl: imageUrl 
-    });
+    res.sendStatus(200);
 });

@@ -1,5 +1,12 @@
+import { join } from 'path';
+
 declare module 'cloudinary' {
   const config : (options : IConfigOptions) => void;
+  namespace v2{
+    namespace api {
+      function delete_folder(folder : string, handler : (error, result) => void)
+    }
+  }
 }
 
 interface IConfigOptions {

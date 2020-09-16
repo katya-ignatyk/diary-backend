@@ -1,3 +1,4 @@
 export enum cloudinaryFolders {
-  avatars = 'avatars'
+  avatars = 'avatars',
+  albums = 'albums'
 }

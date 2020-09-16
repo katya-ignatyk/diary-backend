@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JwtExpiredError, JsonWebTokenError } from '../utils/errors/jwtErrors';
+import { JwtExpiredError, JsonWebTokenError } from '../utils/errors/jwt';
 import { envConfig } from '../config';
 import { CustomErrors } from '../utils/errors/customErrors';
 

@@ -28,7 +28,7 @@ export class NoteService extends BaseService<Note> {
 
       await ProfileService.Instance.save(profile);
 
-      return note ;
+      return note;
 
   }
 

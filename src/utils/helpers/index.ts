@@ -1,0 +1,1 @@
+export { setAlbumPath } from './setAlbumPath';

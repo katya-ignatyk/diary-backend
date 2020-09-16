@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { UserService, EmailService, JwtService, ProfileService } from '../services';
 import { catchAsync } from '../utils/errors/catchAsync';
-import { validateUserData } from '../utils/validators/userValidation';
+import { validateUserData } from '../utils/validators';
 import { envConfig, constants } from '../config';
 import { isUserToken } from '../utils/typeGuards';
-import { UserNotFoundError } from '../utils/errors/userErrors';
-import { InvalidTokenError } from '../utils/errors/jwtErrors';
+import { UserNotFoundError } from '../utils/errors/user';
+import { InvalidTokenError } from '../utils/errors/jwt';
 
 export const signUp = catchAsync(async (req : Request, res : Response) => {
     const { email, username, password } = req.body;
