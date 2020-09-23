@@ -1,10 +1,10 @@
-import { Repository, ObjectLiteral } from 'typeorm';
+import { Repository, ObjectLiteral, FindOneOptions, DeleteResult } from 'typeorm';
 
 export class BaseService<E extends ObjectLiteral> {
     constructor(protected repository : Repository<E>) {
     }
 
-    public findOne(option : Partial<E>) : Promise<E | undefined> {
+    public findOne(option : Partial<E> | FindOneOptions<E>) : Promise<E | undefined> {
         return this.repository.findOne(option); 
     }
 
@@ -16,7 +16,7 @@ export class BaseService<E extends ObjectLiteral> {
         return this.repository.save(entity); 
     } 
 
-    public delete(criteria : Partial<E>) : Promise<unknown> {
+    public delete(criteria : Partial<E> | number | number[]) : Promise<DeleteResult> {
         return this.repository.delete(criteria); 
     }
 }

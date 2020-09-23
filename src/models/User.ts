@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Profile } from './Profile';
 
 export enum UserStatus {
     PENDING = 'PENDING',
@@ -6,7 +7,7 @@ export enum UserStatus {
 }
 
 @Entity('user')
-export class User{
+export class User {
     @PrimaryGeneratedColumn()
     id! : number;
 
@@ -21,4 +22,8 @@ export class User{
 
     @Column({ enum : UserStatus })
     status! : UserStatus
+
+    @OneToOne(() => Profile)
+    @JoinColumn()
+    profile! : Profile
 }

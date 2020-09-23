@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi';
-import { UserVallidationError } from '../errors/userErrors';
+import { UserVallidationError } from '../errors/user';
 
 const inputErrors = Joi.object({
     password: Joi.string()
@@ -16,7 +16,7 @@ const inputErrors = Joi.object({
         .required(),
 }); 
 
-export async function validateUserData(email : string, password : string, username : string){
+export function validateUserData(email : string, password : string, username : string){
     const error = inputErrors.validate({ email, password, username }).error;
     if(error){
         throw new UserVallidationError(error.message);

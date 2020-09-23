@@ -1,7 +1,7 @@
-import { getRepository, Repository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../models';
-import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/userErrors';
+import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVerifiedError } from '../utils/errors/user';
 import { UserStatus } from '../models/User';
 import { BaseService } from './baseService';
 
@@ -26,7 +26,7 @@ export class UserService extends BaseService<User>{
             throw new UserExistenceError();
         }
         const hashedPassword = await this.hashPassword(password);
-        return await this.save({
+        return this.save({
             email,
             password: hashedPassword,
             username,
@@ -41,6 +41,7 @@ export class UserService extends BaseService<User>{
 
     public async authorizeUser(inputEmail : string, password : string) {
         const user = await this.checkEmailExistence(inputEmail);
+        
         if (user.status !== UserStatus.VERIFY) {
             throw new UserNotVerifiedError();
         }
@@ -55,7 +56,12 @@ export class UserService extends BaseService<User>{
     }
 
     public async checkEmailExistence(email : string) {
-        const user = await this.findOne({ email });
+        const user = await this.findOne({ 
+            relations: ['profile'],
+            where: {
+                email
+            }
+        });
 
         if (!user) {
             throw new UserNotFoundError();
@@ -75,8 +81,19 @@ export class UserService extends BaseService<User>{
         await this.update({ id }, { password: hashedPassword });
     }
 
-    public getUserById(id : number) {
-        return this.findOne({ id });
+    public async getUserById(id : number) {
+        const user = await this.findOne({ 
+            relations: ['profile'],
+            where: {
+                id
+            }
+        });
+
+        if (!user) {
+            throw new UserNotFoundError();
+        }
+
+        return user;
     }
 
     private hashPassword(password : string) {

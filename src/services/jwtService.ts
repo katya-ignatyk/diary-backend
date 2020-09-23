@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { JwtExpiredError, JsonWebTokenError } from '../utils/errors/jwtErrors';
+import { JwtExpiredError, JsonWebTokenError } from '../utils/errors/jwt';
 import { envConfig } from '../config';
-import { CustomErors } from '../utils/errors/customErrors';
+import { CustomErrors } from '../utils/errors/customErrors';
 
 type JwtError = 'TokenExpiredError' | 'JsonWebTokenError';
 
@@ -23,17 +23,17 @@ export class JwtService {
             if (errorName === 'TokenExpiredError') {
 
                 if (jwtSecret === envConfig.JWT_REFRESH_SECRET) {
-                    throw new JwtExpiredError(errorMessage, CustomErors.REFRESH_EXPIRED);
+                    throw new JwtExpiredError(errorMessage, CustomErrors.REFRESH_EXPIRED);
                 }
 
                 if (jwtSecret === envConfig.JWT_ACCESS_SECRET) {
-                    throw new JwtExpiredError(errorMessage, CustomErors.ACCESS_EXPIRED);
+                    throw new JwtExpiredError(errorMessage, CustomErrors.ACCESS_EXPIRED);
                 }
-                throw new JwtExpiredError(errorMessage, CustomErors.DEFAULT_EXPIRED);
+                throw new JwtExpiredError(errorMessage, CustomErrors.DEFAULT_EXPIRED);
             }
 
             if (errorName === 'JsonWebTokenError') {
-                throw new JsonWebTokenError(errorMessage, CustomErors.JWT_ERROR);
+                throw new JsonWebTokenError(errorMessage, CustomErrors.JWT_ERROR);
             }
         }
     }
