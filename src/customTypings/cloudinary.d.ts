@@ -1,5 +1,3 @@
-import { join } from 'path';
-
 declare module 'cloudinary' {
   const config : (options : IConfigOptions) => void;
   namespace v2{

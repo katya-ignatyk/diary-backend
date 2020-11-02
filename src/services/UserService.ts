@@ -5,18 +5,20 @@ import { UserExistenceError, UserNotFoundError, InvalidPasswordError, UserNotVer
 import { UserStatus } from '../models/User';
 import { BaseService } from './baseService';
 
-export class UserService extends BaseService<User>{
-    private static instance : UserService;
+export interface IUserService extends BaseService<User> {
+    createUser(email : string, password : string, username : string) : Promise<User>;
+    verifySignUp(id : number) : Promise<User>;
+    authorizeUser(inputEmail : string, password : string) : Promise<User>;
+    checkEmailExistence(email : string) : Promise<User>;
+    resetPassword(password : string, id : number) : Promise<void>;
+    getUserById(id : number) : Promise<User>;
+}
+
+export class UserService extends BaseService<User> implements IUserService {
     private readonly saltRounds = 10;
 
     constructor() {
         super(getRepository(User));
-    }
-
-    public static get Instance() : UserService {
-        if (!UserService.instance)
-            UserService.instance = new UserService();
-        return UserService.instance;
     }
 
     public async createUser(email : string, password : string, username : string) {
@@ -36,7 +38,7 @@ export class UserService extends BaseService<User>{
 
     public async verifySignUp(id : number) {
         await this.update({ id }, { status: UserStatus.VERIFY });
-        return this.findOne({ id });
+        return this.getUserById(id);
     }
 
     public async authorizeUser(inputEmail : string, password : string) {

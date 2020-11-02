@@ -19,7 +19,7 @@ export class Album {
     @ManyToOne(() => Profile, (profile) => profile.albums)
     profile! : Profile;
 
-    @ManyToMany(type => Photo)
+    @ManyToMany(() => Photo)
     @JoinTable()
     photos! : Photo[];
 }

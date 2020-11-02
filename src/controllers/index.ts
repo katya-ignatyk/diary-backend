@@ -1,4 +1,4 @@
-export * as SignUpController from './signUpController';
-export * as SignInController from './signInController';
-export * as SettingsController from './settingsController';
-export * as ProfileController from './profileController';
+export { SignUpController } from './signUpController';
+export { SignInController } from './signInController';
+export { SettingsController } from './settingsController';
+export { ProfileController } from './profileController';

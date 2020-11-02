@@ -15,14 +15,14 @@ enum deleteResult {
     NOT_FOUND = 'not found'
 }
 
-export class CloudinaryService {
-    private static instance : CloudinaryService;
+export interface ICloudinaryService {
+    upload(options : UploadApiOptions , file : IFileRequest) : Promise<Partial<UploadApiResponse>>;
+    delete(imagePublicId : string) : Promise<unknown>;
+    getImageUrl(publicId : string) : string;
+    deleteFolder(folder : string) : Promise<unknown>;
+}
 
-    public static get Instance() : CloudinaryService {
-        if (!CloudinaryService.instance)
-            CloudinaryService.instance = new CloudinaryService();
-        return CloudinaryService.instance;
-    }
+export class CloudinaryService {
 
     public upload(options : UploadApiOptions , file : IFileRequest) : Promise<Partial<UploadApiResponse>> {
         return new Promise<Partial<UploadApiResponse>>((resolve) => {

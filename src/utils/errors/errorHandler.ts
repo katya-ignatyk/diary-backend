@@ -5,7 +5,7 @@ function errorHandler(error : AppError, request : Request, response : Response, 
     const status = error.status || 500;
     const message = error.message || 'Error!';
     const code = error.code || null;
-    response.status(status).send({ status, message, code });
+    return response.status(status).send({ status, message, code });
 }
  
 export default errorHandler;

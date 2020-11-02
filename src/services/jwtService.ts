@@ -5,15 +5,20 @@ import { CustomErrors } from '../utils/errors/customErrors';
 
 type JwtError = 'TokenExpiredError' | 'JsonWebTokenError';
 
+export interface IJwtService {
+    generateToken(id : number, jwtSecret : string, expiresInTime : string) : string;
+    verifyAndDecodeToken(token : string, jwtSecret : string) : string;
+}
+
 export class JwtService {
     
-    public static generateToken(id : number, jwtSecret : string, expiresInTime : string) : string {
+    public generateToken(id : number, jwtSecret : string, expiresInTime : string) : string {
         return jwt.sign({ id }, jwtSecret, {
             expiresIn: expiresInTime
         });
     }
 
-    public static verifyAndDecodeToken(token : string, jwtSecret : string) {
+    public verifyAndDecodeToken(token : string, jwtSecret : string) {
         try {
             return jwt.verify(token, jwtSecret);
         } catch (error) {   

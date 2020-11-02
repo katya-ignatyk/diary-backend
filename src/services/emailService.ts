@@ -2,14 +2,15 @@ import nodemailer from 'nodemailer';
 import mailGen from 'mailgen';
 import { envConfig } from '../config';
 
-export class EmailService {
-    private static instance : EmailService;
+export interface IEmailService {
+    send<T>(email : string, info : T) : Promise<T>;
+    generateVerificationEmail(username : string, token : string) : string;
+    generateForgotPasswordEmail(username : string, token : string) : string;
+    sendVerificationEmail<T>(email : string, username : string, token : string) : Promise<T>;
+    sendForgotPasswordEmail<T>(email : string, username : string, token : string) : Promise<T>;
+}
 
-    public static get Instance() : EmailService {
-        if (!EmailService.instance)
-            EmailService.instance = new EmailService();
-        return EmailService.instance;
-    }
+export class EmailService {
 
     private send<T>(email : string, info : T) : Promise<T> {
         const baseInfo = {
