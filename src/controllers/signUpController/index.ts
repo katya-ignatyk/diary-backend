@@ -5,27 +5,20 @@ import { isUserToken } from '../../utils/typeGuards';
 import { UserNotFoundError } from '../../utils/errors/user';
 import { InvalidTokenError } from '../../utils/errors/jwt';
 import { IEmailService, IJwtService, IProfileService, IUserService } from '../../services';
-import { ISignUpControllerDependencies, ISignUpController } from './interfaces';
+import { IDependencies } from '../../config/awilixContainer';
+import { ISignUpController } from './interfaces';
 
 export class SignUpController implements ISignUpController {
-    private UserService : IUserService;
-    private JwtService : IJwtService;
-    private EmailService : IEmailService;
-    private ProfileService : IProfileService;
+    private userService : IUserService;
+    private jwtService : IJwtService;
+    private emailService : IEmailService;
+    private profileService : IProfileService;
 
-    constructor({ 
-        UserService, 
-        EmailService, 
-        JwtService, 
-        ProfileService 
-    } : ISignUpControllerDependencies) {
-        this.UserService = UserService;
-        this.JwtService = JwtService;
-        this.EmailService = EmailService;
-        this.ProfileService = ProfileService;
-
-        this.signUp = this.signUp.bind(this);
-        this.verifySignUp = this.verifySignUp.bind(this);
+    constructor(deps : IDependencies) {
+        this.userService = deps.userService;
+        this.jwtService = deps.jwtService;
+        this.emailService = deps.emailService;
+        this.profileService = deps.profileService;
     }
 
     async signUp (req : Request, res : Response) {
@@ -36,17 +29,17 @@ export class SignUpController implements ISignUpController {
             password, 
             username
         );
-        const { id } = await this.UserService.createUser(
+        const { id } = await this.userService.createUser(
             email, 
             password, 
             username
         );
-        const verificationToken = this.JwtService.generateToken(
+        const verificationToken = this.jwtService.generateToken(
             id, 
             envConfig.JWT_DEFAULT_SECRET, 
             envConfig.JWT_DEFAULT_EXPIRESIN
         );
-        await this.EmailService.sendVerificationEmail(
+        await this.emailService.sendVerificationEmail(
             email, 
             username, 
             verificationToken
@@ -59,7 +52,7 @@ export class SignUpController implements ISignUpController {
 
     async verifySignUp (req : Request, res : Response) {
         const { token } = req.body;
-        const verifiedToken = this.JwtService.verifyAndDecodeToken(
+        const verifiedToken = this.jwtService.verifyAndDecodeToken(
             token, 
             envConfig.JWT_DEFAULT_SECRET
         );
@@ -68,26 +61,26 @@ export class SignUpController implements ISignUpController {
             throw new InvalidTokenError();
         } 
 
-        const user = await this.UserService.verifySignUp(verifiedToken.id);
+        const user = await this.userService.verifySignUp(verifiedToken.id);
 
         if (!user) {
             throw new UserNotFoundError();
         }
     
         const { id, email, username } = user;
-        const refreshToken = this.JwtService.generateToken(
+        const refreshToken = this.jwtService.generateToken(
             verifiedToken.id, 
             envConfig.JWT_REFRESH_SECRET, 
             envConfig.JWT_REFRESH_EXPIRESIN
         );
-        const accessToken = this.JwtService.generateToken(
+        const accessToken = this.jwtService.generateToken(
             verifiedToken.id, 
             envConfig.JWT_ACCESS_SECRET, 
             envConfig.JWT_ACCESS_EXPIRESIN
         );
         const { girl_name, girl_age, boy_name, boy_age, avatar } = constants;
 
-        await this.ProfileService.create(
+        await this.profileService.create(
             id, 
             girl_name, 
             girl_age, 

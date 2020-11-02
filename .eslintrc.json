@@ -22,7 +22,7 @@
         "indent": "error",
         "no-multi-spaces": "error",
         "space-in-parens": "error",
-        "keyword-spacing": ["error",  { "after": true }],
+        "keyword-spacing": ["error", { "after": true }],
         "no-multiple-empty-lines": ["error", {"max": 1}],
         "prefer-const": "error",
         "eslint no-prototype-builtins" : "off",
@@ -40,7 +40,7 @@
         }],
         "quotes": ["error", "single"],
         "@typescript-eslint/type-annotation-spacing" : ["error" , { "before": true, "after": true }],
-        "@typescript-eslint/explicit-module-boundary-types":"off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/member-delimiter-style": ["error", {
             "multiline": {
                 "delimiter": "comma",

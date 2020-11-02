@@ -1,5 +1,5 @@
-export { profileRoutes, IProfileRoutesDependencies } from './profileRoutes';
-export { settingsRoutes, ISettingsRoutesDependencies } from './settingsRoutes';
-export { signInRoutes, ISignInRouteDependencies } from './signInRoutes';
-export { signUpRoutes, ISignUpRoutesDependencies } from './signUpRoutes';
+export { profileRoutes, } from './profileRoutes';
+export { settingsRoutes } from './settingsRoutes';
+export { signInRoutes } from './signInRoutes';
+export { signUpRoutes } from './signUpRoutes';
 export { router } from './router';

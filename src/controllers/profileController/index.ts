@@ -5,45 +5,22 @@ import { PhotoNotFoundError } from '../../utils/errors/photo';
 import { validateAlbumData, validateAlbumDataWithId, validateNoteData, validateNoteDataWithId } from '../../utils/validators';
 import { setAlbumPath } from '../../utils/helpers';
 import { IAlbumService, ICloudinaryService, INoteService, IPhotoService, IProfileService } from '../../services';
-import { IProfileControllerDependencies, IProfileController } from './interfaces';
+import { IDependencies } from '../../config/awilixContainer';
+import { IProfileController } from './interfaces';
 
 export class ProfileController implements IProfileController{
-    private NoteService : INoteService;
-    private AlbumService : IAlbumService;
-    private ProfileService : IProfileService;
-    private CloudinaryService : ICloudinaryService;
-    private PhotoService : IPhotoService;
+    private noteService : INoteService;
+    private albumService : IAlbumService;
+    private profileService : IProfileService;
+    private cloudinaryService : ICloudinaryService;
+    private photoService : IPhotoService;
 
-    constructor ({ 
-        NoteService, 
-        ProfileService, 
-        AlbumService, 
-        CloudinaryService, 
-        PhotoService 
-    } : IProfileControllerDependencies) {
-        this.NoteService = NoteService;
-        this.ProfileService = ProfileService;
-        this.AlbumService = AlbumService;
-        this.CloudinaryService = CloudinaryService;
-        this.PhotoService = PhotoService;
-
-        this.addNote = this.addNote.bind(this);
-        this.getNotes = this.getNotes.bind(this);
-        this.updateNote = this.updateNote.bind(this);
-        this.deleteNote = this.deleteNote.bind(this);
-
-        this.addAlbum = this.addAlbum.bind(this);
-        this.getAlbum = this.getAlbum.bind(this);
-        this.getAlbums = this.getAlbums.bind(this);
-        this.updateAlbum = this.updateAlbum.bind(this);
-        this.updateAlbumBackground = this.updateAlbumBackground.bind(this);
-        this.deleteAlbum = this.deleteAlbum.bind(this);
-        
-        this.addPhotos = this.addPhotos.bind(this);
-        this.getPhotos = this.getPhotos.bind(this);
-        this.deletePhoto = this.deletePhoto.bind(this);
-        this.updatePhotoStatus = this.updatePhotoStatus.bind(this);        
-        
+    constructor (dependencies : IDependencies) {
+        this.noteService = dependencies.noteService;
+        this.profileService = dependencies.profileService;
+        this.albumService = dependencies.albumService;
+        this.cloudinaryService = dependencies.cloudinaryService;
+        this.photoService = dependencies.photoService;
     }
 
     async addNote (req : Request, res : Response) {
@@ -58,7 +35,7 @@ export class ProfileController implements IProfileController{
     
         await validateNoteData(title, text, date);
     
-        const note = await this.NoteService.createNote(profileId, title, text, date);
+        const note = await this.noteService.createNote(profileId, title, text, date);
     
         res.send({ note });
     }
@@ -70,7 +47,7 @@ export class ProfileController implements IProfileController{
         const end = count * parseInt(page); 
         const start = end - count;
 
-        const { notes } = await this.ProfileService.getProfileById(parseInt(id));
+        const { notes } = await this.profileService.getProfileById(parseInt(id));
 
         const sortedArray = notes.sort((first, second) => {
             return moment(second.date).diff(first.date);
@@ -96,7 +73,7 @@ export class ProfileController implements IProfileController{
     
         await validateNoteDataWithId(title, text, date, id);
         
-        const note = await this.NoteService.updateNote(id, {
+        const note = await this.noteService.updateNote(id, {
             text,
             date,
             title
@@ -108,7 +85,7 @@ export class ProfileController implements IProfileController{
     async deleteNote (req : Request, res : Response) {
         const { id } = req.body;
 
-        await this.NoteService.deleteNote(id);
+        await this.noteService.deleteNote(id);
 
         res.sendStatus(200);
     }
@@ -125,7 +102,7 @@ export class ProfileController implements IProfileController{
     
         await validateAlbumData(title, date);
     
-        const { albums } = await this.ProfileService.getProfileById(profileId);
+        const { albums } = await this.profileService.getProfileById(profileId);
     
         const isTitleExists = albums.some(album => album.title === title);
         
@@ -133,7 +110,7 @@ export class ProfileController implements IProfileController{
             throw new AlbumTitleExistenseError();
         }
     
-        const album = await this.AlbumService.createAlbum(
+        const album = await this.albumService.createAlbum(
             profileId,
             title,
             date
@@ -149,7 +126,7 @@ export class ProfileController implements IProfileController{
         const end = count * parseInt(page); 
         const start = end - count;
 
-        const album = await this.AlbumService.getAlbumById(parseInt(id));
+        const album = await this.albumService.getAlbumById(parseInt(id));
 
         const photosPage = album.photos.slice(start, end);
 
@@ -161,7 +138,7 @@ export class ProfileController implements IProfileController{
         } = album;
 
         const photosWithUrl = photosPage.map(photo => {
-            const photoUrl = this.CloudinaryService.getImageUrl(photo.imageId);
+            const photoUrl = this.cloudinaryService.getImageUrl(photo.imageId);
 
             const {
                 id,
@@ -175,7 +152,7 @@ export class ProfileController implements IProfileController{
             };
         });
 
-        const backgroundPhotoUrl = backgroundPhotoId && this.CloudinaryService.getImageUrl(backgroundPhotoId) || '';
+        const backgroundPhotoUrl = backgroundPhotoId && this.cloudinaryService.getImageUrl(backgroundPhotoId) || '';
 
         res.send({ album: {
             id: albumId, 
@@ -193,7 +170,7 @@ export class ProfileController implements IProfileController{
         const end = count * parseInt(page); 
         const start = end - count;
 
-        const { albums } = await this.ProfileService.getProfileById(parseInt(id));
+        const { albums } = await this.profileService.getProfileById(parseInt(id));
 
         const sortedArray = albums.sort((first, second) => {
             return moment(second.date).diff(first.date);
@@ -202,10 +179,10 @@ export class ProfileController implements IProfileController{
         const albumPage = sortedArray.slice(start, end);
 
         const albumsWithBackgroundUrl = albumPage.map(album => {
-            const backgroundPhotoUrl = this.CloudinaryService.getImageUrl(album.backgroundPhotoId);
+            const backgroundPhotoUrl = this.cloudinaryService.getImageUrl(album.backgroundPhotoId);
 
             const photosWithUrl = album.photos.map(photo => {
-                const photoUrl = this.CloudinaryService.getImageUrl(photo.imageId);
+                const photoUrl = this.cloudinaryService.getImageUrl(photo.imageId);
 
                 const {
                     id,
@@ -248,7 +225,7 @@ export class ProfileController implements IProfileController{
     
         await validateAlbumDataWithId(title, date, id);
     
-        const album = await this.AlbumService.updateAlbum(id, {
+        const album = await this.albumService.updateAlbum(id, {
             title,
             date
         });
@@ -261,7 +238,7 @@ export class ProfileController implements IProfileController{
 
         const { 
             photos
-        } = await this.AlbumService.getAlbumById(id);
+        } = await this.albumService.getAlbumById(id);
 
         const isPhotoFromAlbum = photos.some(photo => photo.id === photoId);
 
@@ -269,14 +246,14 @@ export class ProfileController implements IProfileController{
             throw new PhotoNotFoundError();
         }
 
-        const { imageId } = await this.PhotoService.getPhotoById(photoId);
+        const { imageId } = await this.photoService.getPhotoById(photoId);
 
-        const album = await this.AlbumService.updateAlbum(
+        const album = await this.albumService.updateAlbum(
             id, 
             { backgroundPhotoId: imageId }
         );
 
-        const url = await this.CloudinaryService.getImageUrl(imageId);
+        const url = await this.cloudinaryService.getImageUrl(imageId);
     
         res.send({
             album: { 
@@ -291,18 +268,18 @@ export class ProfileController implements IProfileController{
     async deleteAlbum (req : Request, res : Response) {
         const { id } = req.body;
 
-        const album = await this.AlbumService.getAlbumById(id);
+        const album = await this.albumService.getAlbumById(id);
     
         const albumPath = setAlbumPath(album.profile.id, album.title);
     
-        const isFolderExists = await this.CloudinaryService.deleteFolder(albumPath);
+        const isFolderExists = await this.cloudinaryService.deleteFolder(albumPath);
     
         if (isFolderExists) {
             const ids = album.photos.map(photo => photo.id);
-            await this.PhotoService.deletePhotosByIds(ids);
+            await this.photoService.deletePhotosByIds(ids);
         }
     
-        await this.AlbumService.deleteAlbum(id);
+        await this.albumService.deleteAlbum(id);
         
         res.sendStatus(200);
     }
@@ -311,10 +288,10 @@ export class ProfileController implements IProfileController{
         const { id } = req.body;
         const photos = req.files; 
 
-        const album = await this.AlbumService.getAlbumById(id);
+        const album = await this.albumService.getAlbumById(id);
 
         const savedPhotos = await Promise.all(Object.values(photos).map(async (photo) => {
-            const { public_id, url } = await this.CloudinaryService.upload(
+            const { public_id, url } = await this.cloudinaryService.upload(
                 {
                     folder: setAlbumPath(album.profile.id, album.title)
                 }, 
@@ -324,7 +301,7 @@ export class ProfileController implements IProfileController{
             const { 
                 id: photoId, 
                 isFavorite 
-            } = await this.PhotoService.addPhoto(id, {
+            } = await this.photoService.addPhoto(id, {
                 isFavorite: false,
                 imageId: public_id
             });
@@ -344,10 +321,10 @@ export class ProfileController implements IProfileController{
     async getPhotos (req : Request, res : Response) {
         const { id } = req.params;
 
-        const { photos } = await this.AlbumService.getAlbumById(parseInt(id));
+        const { photos } = await this.albumService.getAlbumById(parseInt(id));
 
         const photosWithUrl = await Promise.all(photos.map(async (photo) => {
-            const url = await this.CloudinaryService.getImageUrl(photo.imageId);
+            const url = await this.cloudinaryService.getImageUrl(photo.imageId);
 
             const { id, isFavorite } = photo;
 
@@ -366,17 +343,17 @@ export class ProfileController implements IProfileController{
     async deletePhoto (req : Request, res : Response) {
         const { id, albumId } = req.body;
 
-        const { imageId } = await this.PhotoService.getPhotoById(id);
+        const { imageId } = await this.photoService.getPhotoById(id);
 
-        await this.CloudinaryService.delete(imageId);
+        await this.cloudinaryService.delete(imageId);
 
-        await this.PhotoService.deletePhotoById(id);
+        await this.photoService.deletePhotoById(id);
 
-        const album = await this.AlbumService.getAlbumById(albumId);
+        const album = await this.albumService.getAlbumById(albumId);
 
         const isBackgroundExists = album.photos.some(photo => photo.imageId === album.backgroundPhotoId);
 
-        !isBackgroundExists && await this.AlbumService.updateAlbum(
+        !isBackgroundExists && await this.albumService.updateAlbum(
             albumId, 
             {
                 backgroundPhotoId: ''
@@ -389,9 +366,9 @@ export class ProfileController implements IProfileController{
     async updatePhotoStatus (req : Request, res : Response) {
         const { id, isFavorite } = req.body;
 
-        const photo = await this.PhotoService.updateStatus(id, isFavorite);
+        const photo = await this.photoService.updateStatus(id, isFavorite);
 
-        const url = await this.CloudinaryService.getImageUrl(photo.imageId);
+        const url = await this.cloudinaryService.getImageUrl(photo.imageId);
 
         res.send({
             id: photo.id,

@@ -1,4 +1,5 @@
 import { DeleteResult, getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Photo } from '../models';
 import { PhotoNotFoundError } from '../utils/errors/photo';
 import { IAlbumService } from './albumService';
@@ -12,31 +13,25 @@ export interface IPhotoService extends BaseService<Photo> {
     updateStatus(id : number, isFavorite : boolean) : Promise<Photo>;
 }
 
-interface IPhotoServiceDependencies {
-    AlbumService : IAlbumService;
-}
-
 export class PhotoService extends BaseService<Photo> implements IPhotoService {
 
-    private AlbumService : IAlbumService;
+    private albumService : IAlbumService;
 
-    constructor({
-        AlbumService
-    } : IPhotoServiceDependencies) {
+    constructor({ albumService } : IDependencies) {
         super(getRepository(Photo));
 
-        this.AlbumService = AlbumService;
+        this.albumService = albumService;
 
         this.addPhoto = this.addPhoto.bind(this);
     }
 
     public async addPhoto(albumId : number, image : Partial<Photo>) {
         const photo = await this.save(image);
-        const album = await this.AlbumService.getAlbumById(albumId);
+        const album = await this.albumService.getAlbumById(albumId);
       
         album.photos = [...album.photos, photo];
 
-        await this.AlbumService.save(album);
+        await this.albumService.save(album);
 
         return photo;
     }

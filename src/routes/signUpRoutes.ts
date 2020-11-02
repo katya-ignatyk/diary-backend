@@ -1,15 +1,11 @@
 import { Router } from 'express';
-import { ISignUpController } from '../controllers/signUpController/interfaces';
+import { IDependencies } from '../config/awilixContainer';
 
-export interface ISignUpRoutesDependencies {
-    SignUpController : ISignUpController;
-}
-
-export const signUpRoutes = ({ SignUpController } : ISignUpRoutesDependencies) => {
+export const signUpRoutes = ({ signUpController } : IDependencies) => {
     const router = Router();
 
-    router.post('/', SignUpController.signUp);
-    router.post('/verify', SignUpController.verifySignUp);
+    router.post('/', (req, res) => signUpController.signUp(req, res));
+    router.post('/verify', (req, res) => signUpController.verifySignUp(req, res));
 
     return router;
 };

@@ -1,21 +1,13 @@
-import multer from 'multer';
 import { Router } from 'express';
-import { ISettingsController } from '../controllers/settingsController/interfaces';
+import { IDependencies } from '../config/awilixContainer';
 
-export interface ISettingsRoutesDependencies {
-    SettingsController : ISettingsController;
-}
-
-export const settingsRoutes = ({ SettingsController } : ISettingsRoutesDependencies) => {
+export const settingsRoutes = ({ settingsController, uploader } : IDependencies) => {
     const router = Router();
-    
-    const storage = multer.memoryStorage();
-    const uploader = multer({ storage });
 
-    router.get('/profile/:id', SettingsController.getProfile);
-    router.put('/profile/avatar', uploader.single('avatar'), SettingsController.updateAvatar);
-    router.put('/profile', SettingsController.updateProfile);
-    router.delete('/profile/avatar', SettingsController.deleteAvatar);
+    router.get('/profile/:id', (req, res) => settingsController.getProfile(req, res));
+    router.put('/profile/avatar', uploader.single('avatar'), (req, res) => settingsController.updateAvatar(req, res));
+    router.put('/profile', (req, res) => settingsController.updateProfile(req, res));
+    router.delete('/profile/avatar', (req, res) => settingsController.deleteAvatar(req, res));
 
     return router;
 };

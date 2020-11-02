@@ -1,4 +1,5 @@
 import { getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Profile } from '../models';
 import { ProfileNotFoundError } from '../utils/errors/profile';
 import { BaseService } from './baseService';
@@ -10,17 +11,13 @@ export interface IProfileService extends BaseService<Profile> {
     updateProfile (id : number, data : Partial<Profile>) : Promise<Profile>;
 }
 
-interface IProfileServiceDependencies {
-    UserService : IUserService;
-}
-
 export class ProfileService extends BaseService<Profile> implements IProfileService {
-  private UserService : IUserService;
+  private userService : IUserService;
   
-  constructor({ UserService } : IProfileServiceDependencies) {
+  constructor({ userService } : IDependencies) {
       super(getRepository(Profile));
 
-      this.UserService = UserService;
+      this.userService = userService;
 
       this.create = this.create.bind(this);
       this.getProfileById = this.getProfileById.bind(this);
@@ -35,7 +32,7 @@ export class ProfileService extends BaseService<Profile> implements IProfileServ
           avatarId
       }); 
     
-      await this.UserService.update({ id: userId }, { profile });
+      await this.userService.update({ id: userId }, { profile });
       return profile; 
   }
 

@@ -1,19 +1,15 @@
 import { Router } from 'express';
-import { ISignInController } from '../controllers/signInController/interfaces';
+import { IDependencies } from '../config/awilixContainer';
 
-export interface ISignInRouteDependencies {
-    SignInController : ISignInController;
-}
-
-export const signInRoutes = ({ SignInController } : ISignInRouteDependencies) => {
+export const signInRoutes = ({ signInController } : IDependencies) => {
     const router = Router();
 
-    router.post('/signIn', SignInController.signIn);
-    router.post('/signIn/forgotPassword', SignInController.forgotPassword);
-    router.post('/signIn/resetPassword', SignInController.resetPassword);
+    router.post('/signIn', (req, res) => signInController.signIn(req, res));
+    router.post('/signIn/forgotPassword', (req, res) => signInController.forgotPassword(req, res));
+    router.post('/signIn/resetPassword', (req, res) => signInController.resetPassword(req, res));
 
-    router.post('/user', SignInController.fetchUser);
-    router.post('/auth', SignInController.auth);
+    router.post('/user', (req, res) => signInController.fetchUser(req, res));
+    router.post('/auth', (req, res) => signInController.auth(req, res));
 
     return router;
 };

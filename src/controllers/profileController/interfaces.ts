@@ -1,10 +1,3 @@
-import { 
-    IPhotoService, 
-    ICloudinaryService, 
-    IProfileService,
-    IAlbumService,
-    INoteService 
-} from '../../services';
 import { IController } from '../interfaces';
 
 export type IProfileController = IController<IProfileControllerNames>;
@@ -24,12 +17,3 @@ export type IProfileControllerNames
     | 'getPhotos'
     | 'deletePhoto'
     | 'updatePhotoStatus'
-    
-export interface IProfileControllerDependencies {
-    NoteService : INoteService;
-    AlbumService : IAlbumService;
-    ProfileService : IProfileService;
-    CloudinaryService : ICloudinaryService;
-    PhotoService : IPhotoService;
-}
-  

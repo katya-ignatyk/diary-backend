@@ -1,4 +1,5 @@
 import { DeleteResult, getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Album } from '../models';
 import { AlbumNotFoundError } from '../utils/errors/album';
 import { BaseService } from './baseService';
@@ -11,17 +12,13 @@ export interface IAlbumService extends BaseService<Album> {
     getAlbumById(id : number) : Promise<Album>;
 }
 
-interface IAlbumServiceDependencies {
-    ProfileService : IProfileService;
-}
-
 export class AlbumService extends BaseService<Album> {
-    private ProfileService : IProfileService;
+    private profileService : IProfileService;
 
-    constructor({ ProfileService } : IAlbumServiceDependencies) {
+    constructor({ profileService } : IDependencies) {
         super(getRepository(Album));
 
-        this.ProfileService = ProfileService;
+        this.profileService = profileService;
 
         this.createAlbum = this.createAlbum.bind(this);
 
@@ -33,10 +30,10 @@ export class AlbumService extends BaseService<Album> {
             date,
         });
 
-        const profile = await this.ProfileService.getProfileById(profileId);
+        const profile = await this.profileService.getProfileById(profileId);
         profile.albums = [...profile.albums, album];
 
-        await this.ProfileService.save(profile);
+        await this.profileService.save(profile);
 
         return album;
     }

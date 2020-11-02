@@ -1,12 +1,8 @@
 import express, { Express, Router } from 'express';
 import bodyParser from 'body-parser';
-import { container, setupContainer } from './config/awilixContainer';
+import { container, IDependencies, setupContainer } from './config/awilixContainer';
 import { envConfig } from './config';
 import errorHandler from './utils/errors/errorHandler';
-
-interface IAppDependencies {
-    router : Router;
-}
 
 setupContainer()
     .then(() => {
@@ -20,9 +16,9 @@ export class App {
     private router : Router
     private readonly port = envConfig.PORT;
 
-    constructor (dep : IAppDependencies) {
+    constructor (deps : IDependencies) {
         this.app = express();
-        this.router = dep.router;
+        this.router = deps.router;
 
         this.start = this.start.bind(this);
     }

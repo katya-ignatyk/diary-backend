@@ -1,33 +1,25 @@
-import multer from 'multer';
 import { Router } from 'express';
-import { IProfileController } from '../controllers/profileController/interfaces';
+import { IDependencies } from '../config/awilixContainer';
 
-export interface IProfileRoutesDependencies {
-    ProfileController : IProfileController;
-}
-
-export const profileRoutes = ({ ProfileController } : IProfileRoutesDependencies) => {
+export const profileRoutes = ({ profileController, uploader } : IDependencies) => {
     const router = Router();
-    
-    const storage = multer.memoryStorage();
-    const uploader = multer({ storage });
 
-    router.post('/note', ProfileController.addNote);
-    router.get('/:id/notes/:page', ProfileController.getNotes);
-    router.put('/note', ProfileController.updateNote);
-    router.delete('/note', ProfileController.deleteNote);
+    router.post('/note', (req, res) => profileController.addNote(req, res));
+    router.get('/:id/notes/:page', (req, res) => profileController.getNotes(req, res));
+    router.put('/note', (req, res) => profileController.updateNote(req, res));
+    router.delete('/note', (req, res) => profileController.deleteNote(req, res));
 
-    router.post('/album', ProfileController.addAlbum);
-    router.get('/:id/albums/:page', ProfileController.getAlbums);
-    router.get('/album/:id/photos/:page', ProfileController.getAlbum);
-    router.put('/album', ProfileController.updateAlbum);
-    router.put('/album/background', ProfileController.updateAlbumBackground);
-    router.delete('/album', ProfileController.deleteAlbum);
+    router.post('/album', (req, res) => profileController.addAlbum(req, res));
+    router.get('/:id/albums/:page', (req, res) => profileController.getAlbums(req, res));
+    router.get('/album/:id/photos/:page', (req, res) => profileController.getAlbum(req, res));
+    router.put('/album', (req, res) => profileController.updateAlbum(req, res));
+    router.put('/album/background', (req, res) => profileController.updateAlbumBackground(req, res));
+    router.delete('/album', (req, res) => profileController.deleteAlbum(req, res));
 
-    router.post('/album/photos', uploader.array('photos', 15), ProfileController.addPhotos);
-    router.get('/album/:id', ProfileController.getPhotos);
-    router.delete('/album/photo', ProfileController.deletePhoto);
-    router.put('/album/photo/status', ProfileController.updatePhotoStatus);
+    router.post('/album/photos', uploader.array('photos', 15), (req, res) => profileController.addPhotos(req, res));
+    router.get('/album/:id', (req, res) => profileController.getPhotos(req, res));
+    router.delete('/album/photo', (req, res) => profileController.deletePhoto(req, res));
+    router.put('/album/photo/status', (req, res) => profileController.updatePhotoStatus(req, res));
 
     return router;
 };

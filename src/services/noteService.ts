@@ -1,4 +1,5 @@
 import { DeleteResult, getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Note } from '../models';
 import { NoteNotFoundError } from '../utils/errors/note';
 import { BaseService } from './baseService';
@@ -10,17 +11,13 @@ export interface INoteService extends BaseService<Note>{
     deleteNote(id : number) : Promise<DeleteResult>;
 }
 
-interface INoteServiceDependencies {
-    ProfileService : IProfileService;
-}
-
 export class NoteService extends BaseService<Note> {
-    private ProfileService : IProfileService;
+    private profileService : IProfileService;
 
-    constructor({ ProfileService } : INoteServiceDependencies) {
+    constructor({ profileService } : IDependencies) {
         super(getRepository(Note));
 
-        this.ProfileService = ProfileService;
+        this.profileService = profileService;
 
         this.createNote = this.createNote.bind(this);
     }
@@ -32,10 +29,10 @@ export class NoteService extends BaseService<Note> {
             text
         });
 
-        const profile = await this.ProfileService.getProfileById(profileId);
+        const profile = await this.profileService.getProfileById(profileId);
         profile.notes = [ ...profile.notes, note ];
 
-        await this.ProfileService.save(profile);
+        await this.profileService.save(profile);
 
         return note;
 

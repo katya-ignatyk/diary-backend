@@ -1,4 +1,6 @@
 import { asClass, asFunction, asValue, createContainer } from 'awilix';
+import { Router } from 'express';
+import multer from 'multer';
 import {
     profileRoutes,
     settingsRoutes,
@@ -8,30 +10,56 @@ import {
 } from '../routes';
 import { 
     SettingsController,
+    ISettingsController,
     ProfileController,
+    IProfileController,
     SignInController,
-    SignUpController
+    ISignInController,
+    SignUpController,
+    ISignUpController
 } from '../controllers';
 import { 
     ProfileService,
+    IProfileService,
     AlbumService,
+    IAlbumService,
     CloudinaryService,
+    ICloudinaryService,
     EmailService,
+    IEmailService,
     JwtService,
+    IJwtService,
     NoteService,
+    INoteService,
     PhotoService,
-    UserService
+    IPhotoService,
+    UserService,
+    IUserService
 } from '../services';
 import { createConnectionWithDB } from '../utils/createConnectionWithDB';
 import { App } from '../';
-import * as config from '../config';
-import { 
-    Album,
-    Note,
-    Photo,
-    Profile,
-    User 
-} from '../models';
+import { uploader } from '../config';
+
+export interface IDependencies {
+   router : Router;
+
+   profileController : IProfileController;
+   settingsController : ISettingsController;
+   signInController : ISignInController;
+   signUpController : ISignUpController;
+   
+   noteService : INoteService;
+   albumService : IAlbumService;
+   profileService : IProfileService;
+   cloudinaryService : ICloudinaryService;
+   photoService : IPhotoService;
+   emailService : IEmailService;
+   userService : IUserService;
+   jwtService : IJwtService;
+
+   uploader : multer.Multer;
+       
+}
 
 const container = createContainer();
 
@@ -44,7 +72,7 @@ async function setupContainer () {
 
         app: asClass(App).singleton(),
         router: asFunction(router).singleton(),
-        config: asValue(config),
+        uploader: asValue(uploader),
 
         //routes
 
@@ -55,29 +83,21 @@ async function setupContainer () {
 
         //controllers
 
-        SettingsController: asClass(SettingsController).singleton(),
-        ProfileController: asClass(ProfileController).singleton(),
-        SignInController: asClass(SignInController).singleton(),
-        SignUpController: asClass(SignUpController).singleton(),
+        settingsController: asClass(SettingsController).singleton(),
+        profileController: asClass(ProfileController),
+        signInController: asClass(SignInController).singleton(),
+        signUpController: asClass(SignUpController).singleton(),
         
         //services
         
-        ProfileService: asClass(ProfileService).singleton(),
-        AlbumService: asClass(AlbumService).singleton(),
-        CloudinaryService: asClass(CloudinaryService).singleton(),
-        EmailService: asClass(EmailService).singleton(),
-        JwtService: asClass(JwtService).singleton(),
-        NoteService: asClass(NoteService).singleton(),
-        PhotoService: asClass(PhotoService).singleton(),
-        UserService: asClass(UserService).singleton(),
-
-        //models
-
-        Album: asValue(Album),
-        Note: asValue(Note),
-        Photo: asValue(Photo),
-        Profile: asValue(Profile),
-        User: asValue(User)
+        profileService: asClass(ProfileService).singleton(),
+        albumService: asClass(AlbumService).singleton(),
+        cloudinaryService: asClass(CloudinaryService).singleton(),
+        emailService: asClass(EmailService).singleton(),
+        jwtService: asClass(JwtService).singleton(),
+        noteService: asClass(NoteService).singleton(),
+        photoService: asClass(PhotoService).singleton(),
+        userService: asClass(UserService).singleton(),
 
     });
 }

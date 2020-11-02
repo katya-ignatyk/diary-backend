@@ -4,53 +4,42 @@ import { isUserToken } from '../../utils/typeGuards';
 import { InvalidTokenError } from '../../utils/errors/jwt';
 import { ICloudinaryService, IEmailService, IJwtService, IProfileService, IUserService } from '../../services';
 import { catchAsync } from '../../utils/errors/catchAsync';
-import { ISignInControllerDependencies, ISignInController } from './interfaces';
+import { IDependencies } from '../../config/awilixContainer';
+import { ISignInController } from './interfaces';
 
 export class SignInController implements ISignInController {
-    private UserService : IUserService;
-    private JwtService : IJwtService;
-    private EmailService : IEmailService;
-    private ProfileService : IProfileService;
-    private CloudinaryService : ICloudinaryService;
+    private userService : IUserService;
+    private jwtService : IJwtService;
+    private emailService : IEmailService;
+    private profileService : IProfileService;
+    private cloudinaryService : ICloudinaryService;
 
-    constructor({ 
-        UserService, 
-        JwtService, 
-        EmailService, 
-        ProfileService, 
-        CloudinaryService 
-    } : ISignInControllerDependencies) {
-        this.UserService = UserService;
-        this.JwtService = JwtService;
-        this.EmailService = EmailService;
-        this.ProfileService = ProfileService;
-        this.CloudinaryService = CloudinaryService;
-
-        this.signIn = this.signIn.bind(this);
-        this.forgotPassword = this.forgotPassword.bind(this);
-        this.resetPassword = this.resetPassword.bind(this);
-        this.fetchUser = this.fetchUser.bind(this);
-        this.auth = this.auth.bind(this);
+    constructor(deps : IDependencies) {
+        this.userService = deps.userService;
+        this.jwtService = deps.jwtService;
+        this.emailService = deps.emailService;
+        this.profileService = deps.profileService;
+        this.cloudinaryService = deps.cloudinaryService;
     }
 
     async signIn (req : Request, res : Response) {
         const { email, password } = req.body;
-        const user = await this.UserService.authorizeUser(email, password);
+        const user = await this.userService.authorizeUser(email, password);
         const { id, username } = user;
     
-        const accessToken = this.JwtService.generateToken(
+        const accessToken = this.jwtService.generateToken(
             id, 
             envConfig.JWT_ACCESS_SECRET, 
             envConfig.JWT_ACCESS_EXPIRESIN
         );
-        const refreshToken = this.JwtService.generateToken(
+        const refreshToken = this.jwtService.generateToken(
             id, 
             envConfig.JWT_REFRESH_SECRET, 
             envConfig.JWT_REFRESH_EXPIRESIN
         );
     
-        const profile = await this.ProfileService.getProfileById(user.profile.id);
-        const imageUrl = await this.CloudinaryService.getImageUrl(user.profile.avatarId);
+        const profile = await this.profileService.getProfileById(user.profile.id);
+        const imageUrl = await this.cloudinaryService.getImageUrl(user.profile.avatarId);
     
         const { 
             id: profileId,
@@ -84,13 +73,13 @@ export class SignInController implements ISignInController {
     async forgotPassword (req : Request, res : Response) {
         const { email } = req.body;
 
-        const { id, username } = await this.UserService.checkEmailExistence(email);
-        const resetToken = this.JwtService.generateToken(
+        const { id, username } = await this.userService.checkEmailExistence(email);
+        const resetToken = this.jwtService.generateToken(
             id, 
             envConfig.JWT_DEFAULT_SECRET, 
             envConfig.JWT_DEFAULT_EXPIRESIN
         );
-        await this.EmailService.sendForgotPasswordEmail(email, username, resetToken);
+        await this.emailService.sendForgotPasswordEmail(email, username, resetToken);
     
         res.status(200).send({ 
             message: 'Success! Check your email to reset pasword' 
@@ -99,7 +88,7 @@ export class SignInController implements ISignInController {
 
     async resetPassword (req : Request, res : Response) {
         const { password, token } = req.body;
-        const verifiedToken = this.JwtService.verifyAndDecodeToken(
+        const verifiedToken = this.jwtService.verifyAndDecodeToken(
             token, 
             envConfig.JWT_DEFAULT_SECRET
         );
@@ -108,7 +97,7 @@ export class SignInController implements ISignInController {
             throw new InvalidTokenError();
         } 
     
-        await this.UserService.resetPassword(password, verifiedToken.id);
+        await this.userService.resetPassword(password, verifiedToken.id);
 
         res.status(200).send({ 
             message: 'Success!' 
@@ -122,7 +111,7 @@ export class SignInController implements ISignInController {
             throw new InvalidTokenError();
         }
     
-        const verifiedToken = this.JwtService.verifyAndDecodeToken(
+        const verifiedToken = this.jwtService.verifyAndDecodeToken(
             accessToken, 
             envConfig.JWT_ACCESS_SECRET
         );
@@ -131,12 +120,12 @@ export class SignInController implements ISignInController {
             throw new InvalidTokenError();
         } 
 
-        const user = await this.UserService.getUserById(verifiedToken.id);
+        const user = await this.userService.getUserById(verifiedToken.id);
 
         const { id, email, username } = user;
 
-        const profile = await this.ProfileService.getProfileById(user.profile.id);
-        const imageUrl = this.CloudinaryService.getImageUrl(user.profile.avatarId);
+        const profile = await this.profileService.getProfileById(user.profile.id);
+        const imageUrl = this.cloudinaryService.getImageUrl(user.profile.avatarId);
 
         const { 
             id: profileId,
@@ -167,7 +156,7 @@ export class SignInController implements ISignInController {
 
         const { refreshToken } = req.body;
 
-        const verifiedRefreshToken = this.JwtService.verifyAndDecodeToken(
+        const verifiedRefreshToken = this.jwtService.verifyAndDecodeToken(
             refreshToken, 
             envConfig.JWT_REFRESH_SECRET
         );
@@ -176,22 +165,22 @@ export class SignInController implements ISignInController {
             throw new InvalidTokenError();
         } 
 
-        const newRefreshToken = this.JwtService.generateToken(
+        const newRefreshToken = this.jwtService.generateToken(
             verifiedRefreshToken.id,
             envConfig.JWT_REFRESH_SECRET, 
             envConfig.JWT_REFRESH_EXPIRESIN
         );
-        const newAccessToken = this.JwtService.generateToken(
+        const newAccessToken = this.jwtService.generateToken(
             verifiedRefreshToken.id, 
             envConfig.JWT_ACCESS_SECRET, 
             envConfig.JWT_ACCESS_EXPIRESIN
         );
-        const user = await this.UserService.getUserById(verifiedRefreshToken.id);
+        const user = await this.userService.getUserById(verifiedRefreshToken.id);
 
         const { id, email, username } = user;
 
-        const profile = await this.ProfileService.getProfileById(user.profile.id);
-        const imageUrl = await this.CloudinaryService.getImageUrl(user.profile.avatarId);
+        const profile = await this.profileService.getProfileById(user.profile.id);
+        const imageUrl = await this.cloudinaryService.getImageUrl(user.profile.avatarId);
 
         const { 
             id: profileId,

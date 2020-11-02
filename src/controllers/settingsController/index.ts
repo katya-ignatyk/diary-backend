@@ -4,23 +4,16 @@ import { constants } from '../../config';
 import { validateProfileData } from '../../utils/validators';
 import { ProfileNotFoundError } from '../../utils/errors/profile';
 import { ICloudinaryService, IProfileService } from '../../services';
-import { ISettingsControllerDependencies, ISettingsController } from './interfaces';
+import { IDependencies } from '../../config/awilixContainer';
+import { ISettingsController } from './interfaces';
 
 export class SettingsController implements ISettingsController {
-    private ProfileService : IProfileService;
-    private CloudinaryService : ICloudinaryService;
+    private profileService : IProfileService;
+    private cloudinaryService : ICloudinaryService;
 
-    constructor({ 
-        ProfileService, 
-        CloudinaryService 
-    } : ISettingsControllerDependencies) {
-        this.ProfileService = ProfileService;
-        this.CloudinaryService = CloudinaryService;
-        
-        this.getProfile = this.getProfile.bind(this);
-        this.updateAvatar = this.updateAvatar.bind(this);
-        this.deleteAvatar = this.deleteAvatar.bind(this);
-        this.updateProfile = this.updateProfile.bind(this);
+    constructor(deps : IDependencies) {
+        this.profileService = deps.profileService;
+        this.cloudinaryService = deps.cloudinaryService;
     }
 
     async getProfile (req : Request, res : Response) {
@@ -33,9 +26,9 @@ export class SettingsController implements ISettingsController {
             boy_name,
             boy_age,
             avatarId
-        } = await this.ProfileService.getProfileById(parseInt(id));
+        } = await this.profileService.getProfileById(parseInt(id));
     
-        const avatarUrl = await this.CloudinaryService.getImageUrl(avatarId);
+        const avatarUrl = await this.cloudinaryService.getImageUrl(avatarId);
     
         res.send({
             profile: {
@@ -54,9 +47,9 @@ export class SettingsController implements ISettingsController {
         const { id } = req.body;
         const image = req.file;
     
-        const { avatarId } = await this.ProfileService.getProfileById(id);
+        const { avatarId } = await this.profileService.getProfileById(id);
     
-        const { url, public_id } = await this.CloudinaryService.upload(
+        const { url, public_id } = await this.cloudinaryService.upload(
             { folder: cloudinaryFolders.avatars }, 
             image
         );
@@ -67,12 +60,12 @@ export class SettingsController implements ISettingsController {
             girl_age,
             boy_name,
             boy_age,
-        } = await this.ProfileService.updateProfile(
+        } = await this.profileService.updateProfile(
             id, 
             { avatarId: public_id }
         );
         
-        avatarId !== constants.avatar && this.CloudinaryService.delete(avatarId);
+        avatarId !== constants.avatar && this.cloudinaryService.delete(avatarId);
     
         res.send({ 
             profile: {
@@ -103,7 +96,7 @@ export class SettingsController implements ISettingsController {
             id
         );
         
-        const profile = await this.ProfileService.updateProfile(
+        const profile = await this.profileService.updateProfile(
             id,
             {
                 girl_name, 
@@ -129,9 +122,9 @@ export class SettingsController implements ISettingsController {
     async deleteAvatar (req : Request, res : Response) {
         const { id } = req.body;
     
-        const { avatarId } = await this.ProfileService.getProfileById(id);
+        const { avatarId } = await this.profileService.getProfileById(id);
 
-        avatarId !== constants.avatar && await this.CloudinaryService.delete(avatarId);
+        avatarId !== constants.avatar && await this.cloudinaryService.delete(avatarId);
 
         const {
             id: profileid, 
@@ -139,7 +132,7 @@ export class SettingsController implements ISettingsController {
             girl_age,
             boy_name,
             boy_age,
-        } = await this.ProfileService.updateProfile(
+        } = await this.profileService.updateProfile(
             id, 
             { avatarId: constants.avatar }
         );
