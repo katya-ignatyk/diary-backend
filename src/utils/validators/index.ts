@@ -1,4 +1,4 @@
-export { validateAlbumData } from './albumValidation';
+export { validateAlbumData, validateAlbumDataWithId } from './albumValidation';
 export { validateUserData } from './userValidation';
-export { validateNoteData } from './noteValidation';
+export { validateNoteData, validateNoteDataWithId } from './noteValidation';
 export { validateProfileData } from './profileValidation';

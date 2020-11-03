@@ -1,56 +1,65 @@
-import { getRepository } from 'typeorm';
+import { DeleteResult, getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Photo } from '../models';
 import { PhotoNotFoundError } from '../utils/errors/photo';
+import { IAlbumService } from './albumService';
 import { BaseService } from './baseService';
-import { AlbumService } from './albumService';
 
-export class PhotoService extends BaseService<Photo> {
-  private static instance : PhotoService;
+export interface IPhotoService extends BaseService<Photo> {
+    addPhoto(albumId : number, image : Partial<Photo>) : Promise<Photo>;
+    getPhotoById(id : number) : Promise<Photo>;
+    deletePhotoById(id : number) : Promise<DeleteResult>;
+    deletePhotosByIds(ids : number[]) : Promise<DeleteResult>;
+    updateStatus(id : number, isFavorite : boolean) : Promise<Photo>;
+}
 
-  constructor() {
-      super(getRepository(Photo));
-  }
+export class PhotoService extends BaseService<Photo> implements IPhotoService {
 
-  public static get Instance() : PhotoService {
-      if (!PhotoService.instance)
-          PhotoService.instance = new PhotoService();
-      return PhotoService.instance;
-  }
+    private albumService : IAlbumService;
 
-  public async addPhoto(albumId : number, image : Partial<Photo>) {
-      const photo = await this.save(image);
-      const album = await AlbumService.Instance.getAlbumById(albumId);
-      album.photos = [...album.photos, photo];
+    constructor({ albumService } : IDependencies) {
+        super(getRepository(Photo));
 
-      await AlbumService.Instance.save(album);
+        this.albumService = albumService;
 
-      return photo;
-  }
+        this.addPhoto = this.addPhoto.bind(this);
+    }
 
-  public async getPhotoById(id : number) {
-      const photo = await this.findOne({ id });
+    public async addPhoto(albumId : number, image : Partial<Photo>) {
+        const photo = await this.save(image);
+        const album = await this.albumService.getAlbumById(albumId);
+      
+        album.photos = [...album.photos, photo];
 
-      if (!photo) {
-          throw new PhotoNotFoundError();
-      }
+        await this.albumService.save(album);
 
-      return photo;
-  }
+        return photo;
+    }
 
-  public async deletePhotoById(id : number) {
-      return this.delete(id);
-  }
+    public async getPhotoById(id : number) {
+        const photo = await this.findOne({ id });
 
-  public async deletePhotosByIds(ids : number[]) {
-      return this.delete(ids);
-  }
+        if (!photo) {
+            throw new PhotoNotFoundError();
+        }
 
-  public async updateStatus(id : number, isFavorite : boolean) {
-      await this.update({ id }, {
-          isFavorite
-      });
+        return photo;
+    }
 
-      return this.getPhotoById(id);
-  }
+    public async deletePhotoById(id : number) {
+        return this.delete(id);
+    }
+
+    public async deletePhotosByIds(ids : number[]) {
+        return this.delete(ids);
+    }
+
+    public async updateStatus(id : number, isFavorite : boolean) {
+        await this.update({ id }, {
+            isFavorite
+        });
+
+        return this.getPhotoById(id);
+    }
  
 }

@@ -1,29 +1,44 @@
-import express from 'express';
+import express, { Express, Router } from 'express';
 import bodyParser from 'body-parser';
-import router from './routes';
+import { container, IDependencies, setupContainer } from './config/awilixContainer';
 import { envConfig } from './config';
-import { createConnectionWithDB } from './utils/createConectionWithDB';
 import errorHandler from './utils/errors/errorHandler';
 
-const port = envConfig.PORT;
+setupContainer()
+    .then(() => {
+        const server = container.resolve<App>('app');
 
-(async () => {
-    await createConnectionWithDB();
-    const app = express();
-    app.use(bodyParser.json());
-    app.use((req, res, next) => {
-        res.header(
-            'Access-Control-Allow-Origin',
-            envConfig.FE_ADDRESS,
-        );
-        res.header('Access-Control-Allow-Headers', '*');
-        res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT');
-        next();
-    });
-    app.use(router);
-    app.use(errorHandler);
-    app.listen(port, () => {
-        console.log(`server started at ${port}`);
-    });
-})();
+        server.start();
+    }); 
+
+export class App {
+    private app : Express;
+    private router : Router
+    private readonly port = envConfig.PORT;
+
+    constructor (deps : IDependencies) {
+        this.app = express();
+        this.router = deps.router;
+
+        this.start = this.start.bind(this);
+    }
+
+    start () {
+        this.app.use(bodyParser.json());
+        this.app.use((req, res, next) => {
+            res.header(
+                'Access-Control-Allow-Origin',
+                envConfig.FE_ADDRESS,
+            );
+            res.header('Access-Control-Allow-Headers', '*');
+            res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT');
+            next();
+        });
+        this.app.use(this.router);
+        this.app.use(errorHandler);
+        this.app.listen(this.port, () => {
+            console.log(`server started at ${this.port}`);
+        });
+    }
+}
 

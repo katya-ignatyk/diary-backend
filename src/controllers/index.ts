@@ -1,4 +1,11 @@
-export * as SignUpController from './signUpController';
-export * as SignInController from './signInController';
-export * as SettingsController from './settingsController';
-export * as ProfileController from './profileController';
+export { SignUpController } from './signUpController';
+export { ISignUpController } from './signUpController/interfaces';
+
+export { SignInController } from './signInController';
+export { ISignInController } from './signInController/interfaces';
+
+export { SettingsController } from './settingsController';
+export { ISettingsController } from './settingsController/interfaces';
+
+export { ProfileController } from './profileController';
+export { IProfileController } from './profileController/interfaces';

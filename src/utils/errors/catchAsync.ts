@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 interface IController {
-  (req : Request, res : Response, next : NextFunction) : Promise<unknown>;
+  (req : Request, res : Response, next : NextFunction) : Promise<void>;
 }
 
 export function catchAsync(fn : IController) {

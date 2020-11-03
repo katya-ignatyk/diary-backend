@@ -18,7 +18,7 @@ const inputErrors = Joi.object({
 
 export function validateUserData(email : string, password : string, username : string){
     const error = inputErrors.validate({ email, password, username }).error;
-    if(error){
+    if (error){
         throw new UserVallidationError(error.message);
     }
 }

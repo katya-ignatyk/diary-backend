@@ -1,65 +1,72 @@
-import { getRepository } from 'typeorm';
+import { DeleteResult, getRepository } from 'typeorm';
+import { IDependencies } from '../config/awilixContainer';
 import { Album } from '../models';
 import { AlbumNotFoundError } from '../utils/errors/album';
 import { BaseService } from './baseService';
-import { ProfileService } from './profileService';
+import { IProfileService } from './profileService';
+
+export interface IAlbumService extends BaseService<Album> {
+    createAlbum(profileId : number, title : string, date : Date) : Promise<Album>;
+    updateAlbum(id : number, data : Partial<Album>) : Promise<Album>;
+    deleteAlbum(id : number) : Promise<DeleteResult>;
+    getAlbumById(id : number) : Promise<Album>;
+}
 
 export class AlbumService extends BaseService<Album> {
-  private static instance : AlbumService;
+    private profileService : IProfileService;
 
-  constructor() {
-      super(getRepository(Album));
-  }
+    constructor({ profileService } : IDependencies) {
+        super(getRepository(Album));
 
-  public static get Instance() : AlbumService {
-      if (!AlbumService.instance)
-          AlbumService.instance = new AlbumService();
-      return AlbumService.instance;
-  }
+        this.profileService = profileService;
 
-  public async createAlbum(profileId : number, title : string, date : Date) {
-      const album = await this.save({
-          title,
-          date,
-      });
+        this.createAlbum = this.createAlbum.bind(this);
 
-      const profile = await ProfileService.Instance.getProfileById(profileId);
-      profile.albums = [...profile.albums, album];
+    }
 
-      await ProfileService.Instance.save(profile);
+    public async createAlbum(profileId : number, title : string, date : Date) {
+        const album = await this.save({
+            title,
+            date,
+        });
 
-      return album;
-  }
+        const profile = await this.profileService.getProfileById(profileId);
+        profile.albums = [...profile.albums, album];
 
-  public async updateAlbum(id : number, data : Partial<Album>) {
-      await this.update({ id }, data);
+        await this.profileService.save(profile);
 
-      return this.getAlbumById(id);
-  }
+        return album;
+    }
 
-  public async deleteAlbum(id : number) {
-      const deleteResult = await this.delete({ id });
+    public async updateAlbum(id : number, data : Partial<Album>) {
+        await this.update({ id }, data);
 
-      if (deleteResult.affected === 0) {
-          throw new AlbumNotFoundError();
-      }
+        return this.getAlbumById(id);
+    }
 
-      return deleteResult;
-  }
+    public async deleteAlbum(id : number) {
+        const deleteResult = await this.delete({ id });
 
-  public async getAlbumById(id : number) {
-      const album = await this.findOne({ 
-          relations: ['profile'],
-          where: {
-              id
-          }
-      });
+        if (deleteResult.affected === 0) {
+            throw new AlbumNotFoundError();
+        }
 
-      if (!album) {
-          throw new AlbumNotFoundError();
-      }
+        return deleteResult;
+    }
 
-      return album;
-  }
+    public async getAlbumById(id : number) {
+        const album = await this.findOne({ 
+            relations: ['profile', 'photos'],
+            where: {
+                id
+            }
+        });
+
+        if (!album) {
+            throw new AlbumNotFoundError();
+        }
+
+        return album;
+    }
 
 }

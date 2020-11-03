@@ -1,7 +1,7 @@
 import Joi from '@hapi/joi';
 import { NoteValidationError } from '../errors/note';
 
-const noteErrors = Joi.object({
+const noteSchema = Joi.object({
     title: Joi.string()
         .required(),
     text: Joi.string()
@@ -10,7 +10,7 @@ const noteErrors = Joi.object({
         .required()
 }); 
 
-const noteErrorsWithId = Joi.object({
+const noteSchemaWithId = Joi.object({
     title: Joi.string()
         .required(),
     text: Joi.string()
@@ -21,9 +21,18 @@ const noteErrorsWithId = Joi.object({
         .required()
 }); 
 
-export function validateNoteData(title : string, text : string, date : Date, id ?: number) {
+export function validateNoteData(title : string, text : string, date : Date) {
 
-    const error = (id && noteErrorsWithId.validate({ title, text, date, id }).error) || noteErrors.validate({ title, text, date }).error;
+    const error = noteSchema.validate({ title, text, date }).error;
+
+    if (error) {
+        throw new NoteValidationError(error.message);
+    }
+}
+
+export function validateNoteDataWithId(title : string, text : string, date : Date, id : number) {
+
+    const error = noteSchemaWithId.validate({ title, text, date, id }).error;
 
     if (error) {
         throw new NoteValidationError(error.message);

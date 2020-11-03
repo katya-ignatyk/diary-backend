@@ -1,14 +1,14 @@
 import Joi from '@hapi/joi';
 import { AlbumValidationError } from '../errors/album';
 
-const albumErrors = Joi.object({
+const albumSchema = Joi.object({
     title: Joi.string()
         .required(),
     date: Joi.date()
         .required()
 }); 
 
-const albumErrorsWithId = Joi.object({
+const albumSchemaWithId = Joi.object({
     title: Joi.string()
         .required(),
     date: Joi.date()
@@ -17,9 +17,18 @@ const albumErrorsWithId = Joi.object({
         .required()
 }); 
 
-export function validateAlbumData(title : string, date : Date, id ?: number) {
+export function validateAlbumData(title : string, date : Date) {
 
-    const error = (id && albumErrorsWithId.validate({ title, date, id }).error) || albumErrors.validate({ title, date }).error;
+    const error = albumSchema.validate({ title, date }).error;
+
+    if (error) {
+        throw new AlbumValidationError(error.message);
+    }
+}
+
+export function validateAlbumDataWithId(title : string, date : Date, id : number) {
+
+    const error = albumSchemaWithId.validate({ title, date, id }).error;
 
     if (error) {
         throw new AlbumValidationError(error.message);
